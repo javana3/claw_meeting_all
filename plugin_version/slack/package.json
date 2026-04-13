@@ -1,0 +1,21 @@
+{
+  "name": "openclaw-meeting-scheduler-slack",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "openclaw": {
+    "extensions": ["./dist/index.js"]
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@slack/web-api": "^7.0.0",
+    "claw-meeting-shared": "file:../shared"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "openclaw-meeting-scheduler",
+  "version": "0.2.0",
+  "private": true,
+  "main": "dist/index.js",
+  "openclaw": {
+    "extensions": ["./dist/index.js"]
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "claw-meeting-shared": "file:../shared"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
