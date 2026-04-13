@@ -25,7 +25,7 @@ Two production versions are available:
 ```mermaid
 graph TD
     A(User Message) --> B(OpenClaw Gateway)
-    B --> C{ctx.messageChannel}
+    B --> C(ctx.messageChannel)
     C -->|feishu| D(Feishu Provider)
     C -->|slack| E(Slack Provider)
     D --> F(Calendar API)
@@ -64,10 +64,10 @@ graph LR
     SLK -->|import| SHARED
 
     SHARED --> CORE(plugin-core.ts - 7 Tools)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(Lark Provider)
     ROUTER -->|slack| SP(Slack Provider)
-    CORE --> MEM[(In-Memory Map)]
+    CORE --> MEM(In-Memory Map)
     CORE --> SCH(Scheduler)
 ```
 
@@ -90,7 +90,7 @@ A self-contained reimplementation using ESM modules. No external package depende
 ```mermaid
 graph LR
     IDX(index.ts) --> CORE(plugin-core.ts - 7 Tools)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(Lark Provider)
     ROUTER -->|slack| SP(Slack Provider)
     CORE --> STORE(MeetingStore)
@@ -133,14 +133,14 @@ stateDiagram-v2
 ```mermaid
 graph TD
     A(Attendee receives DM invite) --> B(Replies in DM)
-    B --> C{LLM parses response}
+    B --> C(LLM parses response)
     C -->|accept| D(status = accepted)
     C -->|decline| E(status = declined)
     C -->|time range| F(status = proposed_alt)
     C -->|delegate| G(Mark declined + add delegate)
     C -->|noise| H(Ask for clarification)
 
-    D --> I{All responded?}
+    D --> I(All responded?)
     E --> I
     F --> I
     G --> I
@@ -156,10 +156,10 @@ graph TD
 
 ```mermaid
 graph TD
-    A(Ticker - every 60s) --> B{Check each open meeting}
-    B --> C{now >= expiresAt?}
+    A(Ticker - every 60s) --> B(Check each open meeting)
+    B --> C(now >= expiresAt?)
     C -->|Yes 12h passed| D(Close + DM initiator)
-    C -->|No| E{Status update due?}
+    C -->|No| E(Status update due?)
     E -->|Yes 1h since last| F(DM roll-call to initiator)
     E -->|No| G(Skip)
 ```
@@ -310,14 +310,14 @@ graph LR
     style D2 fill:#22c55e,color:#fff
     style D3 fill:#22c55e,color:#fff
     style D4 fill:#22c55e,color:#fff
-    style S1 fill:#64748b,color:#fff
-    style S2 fill:#64748b,color:#fff
-    style S3 fill:#64748b,color:#fff
-    style S4 fill:#64748b,color:#fff
-    style S5 fill:#64748b,color:#fff
-    style S6 fill:#64748b,color:#fff
-    style S7 fill:#64748b,color:#fff
-    style S8 fill:#64748b,color:#fff
+    style S1 fill:#6366f1,color:#fff
+    style S2 fill:#6366f1,color:#fff
+    style S3 fill:#6366f1,color:#fff
+    style S4 fill:#6366f1,color:#fff
+    style S5 fill:#6366f1,color:#fff
+    style S6 fill:#6366f1,color:#fff
+    style S7 fill:#6366f1,color:#fff
+    style S8 fill:#6366f1,color:#fff
 ```
 
 ---

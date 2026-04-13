@@ -25,7 +25,7 @@ ClawMeeting은 OpenClaw용 AI 기반 회의 스케줄링 시스템입니다. 지
 ```mermaid
 graph TD
     A(사용자 메시지) --> B(OpenClaw 게이트웨이)
-    B --> C{ctx.messageChannel}
+    B --> C(ctx.messageChannel)
     C -->|feishu| D(Feishu 프로바이더)
     C -->|slack| E(Slack 프로바이더)
     D --> F(캘린더 API)
@@ -64,10 +64,10 @@ graph LR
     SLK -->|import| SHARED
 
     SHARED --> CORE(plugin-core.ts - 7개 도구)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(Lark 프로바이더)
     ROUTER -->|slack| SP(Slack 프로바이더)
-    CORE --> MEM[(메모리 내 Map)]
+    CORE --> MEM(메모리 내 Map)
     CORE --> SCH(스케줄러)
 ```
 
@@ -90,7 +90,7 @@ ESM 모듈을 사용하는 독립형 재구현체입니다. 외부 패키지 의
 ```mermaid
 graph LR
     IDX(index.ts) --> CORE(plugin-core.ts - 7개 도구)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(Lark 프로바이더)
     ROUTER -->|slack| SP(Slack 프로바이더)
     CORE --> STORE(MeetingStore)
@@ -133,14 +133,14 @@ stateDiagram-v2
 ```mermaid
 graph TD
     A(참석자가 DM 초대 수신) --> B(DM으로 응답)
-    B --> C{LLM이 응답 분석}
+    B --> C(LLM이 응답 분석)
     C -->|수락| D(상태 = accepted)
     C -->|거절| E(상태 = declined)
     C -->|시간 범위| F(상태 = proposed_alt)
     C -->|위임| G(거절 처리 + 대리인 추가)
     C -->|무관한 메시지| H(명확한 답변 요청)
 
-    D --> I{전원 응답 완료?}
+    D --> I(전원 응답 완료?)
     E --> I
     F --> I
     G --> I
@@ -156,10 +156,10 @@ graph TD
 
 ```mermaid
 graph TD
-    A(Ticker - 60초마다) --> B{각 진행 중인 회의 확인}
-    B --> C{now >= expiresAt?}
+    A(Ticker - 60초마다) --> B(각 진행 중인 회의 확인)
+    B --> C(now >= expiresAt?)
     C -->|예 - 12시간 경과| D(종료 + 주최자에게 DM)
-    C -->|아니오| E{상태 업데이트 필요?}
+    C -->|아니오| E(상태 업데이트 필요?)
     E -->|예 - 마지막 업데이트 후 1시간| F(주최자에게 현황 DM 전송)
     E -->|아니오| G(건너뛰기)
 ```
@@ -310,14 +310,14 @@ graph LR
     style D2 fill:#22c55e,color:#fff
     style D3 fill:#22c55e,color:#fff
     style D4 fill:#22c55e,color:#fff
-    style S1 fill:#64748b,color:#fff
-    style S2 fill:#64748b,color:#fff
-    style S3 fill:#64748b,color:#fff
-    style S4 fill:#64748b,color:#fff
-    style S5 fill:#64748b,color:#fff
-    style S6 fill:#64748b,color:#fff
-    style S7 fill:#64748b,color:#fff
-    style S8 fill:#64748b,color:#fff
+    style S1 fill:#6366f1,color:#fff
+    style S2 fill:#6366f1,color:#fff
+    style S3 fill:#6366f1,color:#fff
+    style S4 fill:#6366f1,color:#fff
+    style S5 fill:#6366f1,color:#fff
+    style S6 fill:#6366f1,color:#fff
+    style S7 fill:#6366f1,color:#fff
+    style S8 fill:#6366f1,color:#fff
 ```
 
 ---

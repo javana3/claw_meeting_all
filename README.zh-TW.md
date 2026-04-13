@@ -25,7 +25,7 @@ ClawMeeting 是基於 OpenClaw 的 AI 驅動會議排程系統。它透過三階
 ```mermaid
 graph TD
     A(使用者訊息) --> B(OpenClaw 閘道)
-    B --> C{ctx.messageChannel}
+    B --> C(ctx.messageChannel)
     C -->|feishu| D(飛書服務商)
     C -->|slack| E(Slack 服務商)
     D --> F(日曆 API)
@@ -64,10 +64,10 @@ graph LR
     SLK -->|匯入| SHARED
 
     SHARED --> CORE(plugin-core.ts - 7 個工具)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(飛書服務商)
     ROUTER -->|slack| SP(Slack 服務商)
-    CORE --> MEM[(記憶體 Map)]
+    CORE --> MEM(記憶體 Map)
     CORE --> SCH(排程器)
 ```
 
@@ -90,7 +90,7 @@ graph LR
 ```mermaid
 graph LR
     IDX(index.ts) --> CORE(plugin-core.ts - 7 個工具)
-    CORE --> ROUTER{ctx.messageChannel}
+    CORE --> ROUTER(ctx.messageChannel)
     ROUTER -->|feishu| LP(飛書服務商)
     ROUTER -->|slack| SP(Slack 服務商)
     CORE --> STORE(MeetingStore)
@@ -133,14 +133,14 @@ stateDiagram-v2
 ```mermaid
 graph TD
     A(參與者收到私訊邀請) --> B(在私訊中回覆)
-    B --> C{LLM 解析回覆}
+    B --> C(LLM 解析回覆)
     C -->|接受| D(狀態 = 已接受)
     C -->|拒絕| E(狀態 = 已拒絕)
     C -->|時間範圍| F(狀態 = 提出替代)
     C -->|委派| G(標記拒絕 + 新增代理人)
     C -->|雜訊| H(要求澄清)
 
-    D --> I{全部已回覆?}
+    D --> I(全部已回覆?)
     E --> I
     F --> I
     G --> I
@@ -156,10 +156,10 @@ graph TD
 
 ```mermaid
 graph TD
-    A(定時器 - 每 60 秒) --> B{檢查每個進行中的會議}
-    B --> C{now >= expiresAt?}
+    A(定時器 - 每 60 秒) --> B(檢查每個進行中的會議)
+    B --> C(now >= expiresAt?)
     C -->|是 已過 12 小時| D(關閉 + 私訊發起者)
-    C -->|否| E{需要狀態更新?}
+    C -->|否| E(需要狀態更新?)
     E -->|是 距上次已過 1 小時| F(私訊點名報告給發起者)
     E -->|否| G(跳過)
 ```
@@ -310,14 +310,14 @@ graph LR
     style D2 fill:#22c55e,color:#fff
     style D3 fill:#22c55e,color:#fff
     style D4 fill:#22c55e,color:#fff
-    style S1 fill:#64748b,color:#fff
-    style S2 fill:#64748b,color:#fff
-    style S3 fill:#64748b,color:#fff
-    style S4 fill:#64748b,color:#fff
-    style S5 fill:#64748b,color:#fff
-    style S6 fill:#64748b,color:#fff
-    style S7 fill:#64748b,color:#fff
-    style S8 fill:#64748b,color:#fff
+    style S1 fill:#6366f1,color:#fff
+    style S2 fill:#6366f1,color:#fff
+    style S3 fill:#6366f1,color:#fff
+    style S4 fill:#6366f1,color:#fff
+    style S5 fill:#6366f1,color:#fff
+    style S6 fill:#6366f1,color:#fff
+    style S7 fill:#6366f1,color:#fff
+    style S8 fill:#6366f1,color:#fff
 ```
 
 ---
