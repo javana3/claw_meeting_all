@@ -1,6 +1,6 @@
 {
-  "name": "openclaw-meeting-scheduler",
-  "version": "0.1.0",
+  "name": "openclaw-meeting-scheduler-unified",
+  "version": "0.3.0",
   "private": true,
   "main": "dist/index.js",
   "openclaw": {
@@ -11,13 +11,11 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "googleapis": "^144.0.0",
-    "luxon": "^3.5.0"
+    "@slack/web-api": "^7.0.0",
+    "claw-meeting-shared": "file:../shared"
   },
   "devDependencies": {
-    "@types/luxon": "^3.4.2",
     "@types/node": "^22.0.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.6.0"
   }
 }

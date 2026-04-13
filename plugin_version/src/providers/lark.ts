@@ -163,7 +163,7 @@ import {
   DirectoryCandidate,
   ResolvedUser,
   UpcomingEvent,
-} from "./types";
+} from "claw-meeting-shared";
 
 export interface LarkConfig {
   appId: string;
