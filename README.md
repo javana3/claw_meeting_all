@@ -1,217 +1,323 @@
+<div align="center">
+
 # OpenClaw Meeting Scheduler
 
-[中文版](#中文) | [English](#english)
+**Multi-platform AI meeting scheduler for OpenClaw**
+
+Schedule meetings via natural language in Feishu and Slack.
+The plugin automatically routes by platform, resolves attendee names, collects availability via DM, scores time slots, and creates calendar events.
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![OpenClaw](https://img.shields.io/badge/OpenClaw-Plugin%20%2B%20Skill-FF6B35)
+![Feishu](https://img.shields.io/badge/Feishu-Supported-00D09C?logo=bytedance&logoColor=white)
+![Slack](https://img.shields.io/badge/Slack-Supported-4A154B?logo=slack&logoColor=white)
+![License](https://img.shields.io/badge/License-Private-red)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue)
+
+[English](#english) | [中文版](#中文)
+
+</div>
 
 ---
 
 <a id="english"></a>
 
-## English
+## Overview
 
-A multi-platform meeting scheduler for OpenClaw. Schedule meetings via natural language in Feishu and Slack — the plugin automatically routes by platform.
+This repository contains two versions of the meeting scheduler:
 
-This repository contains two versions:
-- **`plugin_version/`** — Original OpenClaw Plugin (in-memory state, 6 tools)
-- **`skill_version/`** — Skill-packaged Plugin with persistent state (7 tools, file-backed storage)
+| | `plugin_version/` | `skill_version/` |
+|---|---|---|
+| **Architecture** | OpenClaw Plugin (CJS) | Skill-packaged Plugin (ESM) |
+| **Tools** | 6 | 7 (+slot confirmation) |
+| **Platforms** | Feishu only | Feishu + Slack |
+| **State** | In-memory (lost on restart) | File-persistent (survives restart) |
+| **Negotiation** | Simple accept/decline | 3-phase scoring + confirmation |
+| **Installation** | `openclaw plugins install` | `openclaw skills add` |
 
-### Architecture Overview
+## Architecture
 
-```
-User (Feishu/Slack)
-  │
-  ▼
-OpenClaw Gateway
-  │  routes message by ctx.messageChannel
-  ▼
-plugin-core.ts ── resolveCtx(ctx) ──┬── feishu ── LarkCalendarProvider (lark.ts)
-                                     │              ├─ Feishu Calendar API
-                                     │              ├─ Feishu Contact API (directory walk)
-                                     │              └─ Feishu IM API (DM)
-                                     │
-                                     └── slack ─── SlackProvider (slack.ts)
-                                                    ├─ Slack users.list / users.info
-                                                    ├─ Slack chat.postMessage (DM)
-                                                    └─ Calendar stubs (not yet implemented)
-```
+```mermaid
+graph TB
+    subgraph Users
+        U1[Feishu User]
+        U2[Slack User]
+    end
 
-### Full Business Flow
+    subgraph OpenClaw Gateway
+        GW[Gateway]
+        AG[Agent LLM]
+    end
 
-```
-                    ┌─────────────────────────────────────────────────┐
-                    │  1. USER SENDS MESSAGE                         │
-                    │  "帮我和博泽约个会, 明天下午, 30分钟"            │
-                    └──────────────────┬──────────────────────────────┘
-                                       │
-                    ┌──────────────────▼──────────────────────────────┐
-                    │  2. GATEWAY DISPATCHES TO AGENT SESSION          │
-                    │  LLM (Kimi K2.5) reads SKILL.md + tool schemas │
-                    │  Recognizes "约个会" → must call tool            │
-                    └──────────────────┬──────────────────────────────┘
-                                       │
-              ┌────────────────────────▼─────────────────────────────┐
-              │  3. find_and_book_meeting  (plugin-core.ts)          │
-              │                                                      │
-              │  a. resolveCtx(ctx) → detect platform (feishu/slack) │
-              │  b. normalizeAttendees() → validate IDs per platform │
-              │  c. In-flight dedup (Layer 1: Promise sharing)       │
-              │  d. provider.resolveUsers() → resolve names          │
-              │     ├─ Found → open_id / user_id                     │
-              │     └─ Not found → return candidates to LLM          │
-              │        └─ LLM picks best match → re-invokes tool     │
-              │  e. Post-resolve idempotency (Layer 2: SHA256 60s)   │
-              │  f. Create PendingMeeting (channel, phase=collecting)│
-              │  g. store.save() → persist to pending/mtg_xxx.json   │
-              │  h. provider.sendTextDM() → invite each attendee     │
-              └────────────────────────┬─────────────────────────────┘
-                                       │
-              ┌────────────────────────▼─────────────────────────────┐
-              │  4. ATTENDEE REPLIES IN THEIR DM SESSION             │
-              │  "同意" / "我只有15:30-17:00有空" / "拒绝"            │
-              │  LLM → record_attendee_response (plugin-core.ts)     │
-              │                                                      │
-              │  a. Auto-resolve meetingId (sender's only pending)   │
-              │  b. Status mapping:                                  │
-              │     同意/可以/行 → accepted                           │
-              │     拒绝/不行   → declined                            │
-              │     具体时段    → proposed_alt + windows              │
-              │  c. Merge logic: append (default) or replace         │
-              │  d. Delegation: "让XXX替我去" → decline + add delegate│
-              │  e. store.save() → persist updated state             │
-              │  f. If all responded → scheduleFinalize (30s debounce)│
-              └────────────────────────┬─────────────────────────────┘
-                                       │
-              ┌────────────────────────▼─────────────────────────────┐
-              │  5. FINALIZATION STATE MACHINE (plugin-core.ts)      │
-              │                                                      │
-              │  ┌─ COLLECTING ─────────────────────────────────┐    │
-              │  │ All accepted? ──YES──► commitMeeting()       │    │
-              │  │                         (fast path)          │    │
-              │  │ Some proposed_alt? ──► scoreSlots()          │    │
-              │  │   → rank by attendee coverage                │    │
-              │  │   → DM initiator with ranked options         │    │
-              │  │   → phase = "scoring"                        │    │
-              │  └──────────────────────────────────────────────┘    │
-              │                                                      │
-              │  ┌─ SCORING ────────────────────────────────────┐    │
-              │  │ Initiator calls confirm_meeting_slot         │    │
-              │  │   → picks slot index or custom time          │    │
-              │  │   → reset attendees to pending               │    │
-              │  │   → DM each attendee with chosen time        │    │
-              │  │   → phase = "confirming"                     │    │
-              │  └──────────────────────────────────────────────┘    │
-              │                                                      │
-              │  ┌─ CONFIRMING ─────────────────────────────────┐    │
-              │  │ Attendees accept/decline the specific slot   │    │
-              │  │ All responded → commitMeeting()              │    │
-              │  └──────────────────────────────────────────────┘    │
-              └────────────────────────┬─────────────────────────────┘
-                                       │
-              ┌────────────────────────▼─────────────────────────────┐
-              │  6. commitMeeting() (plugin-core.ts)                 │
-              │                                                      │
-              │  a. provider.createEvent() → create calendar event   │
-              │     (Lark: POST /calendar/v4/calendars/.../events)   │
-              │  b. provider.sendTextDM() → notify initiator         │
-              │     "已锁定 15:30-16:00, 会议链接: ..."               │
-              │  c. meeting.closed = true                            │
-              │  d. store.save() → persist final state               │
-              └──────────────────────────────────────────────────────┘
+    subgraph Meeting Scheduler Plugin
+        PC[plugin-core.ts]
+        RC{resolveCtx}
+        MS[(MeetingStore)]
+
+        subgraph Feishu Provider
+            LP[lark.ts]
+            LCAL[Calendar API]
+            LDIR[Contact API]
+            LDM[IM API]
+        end
+
+        subgraph Slack Provider
+            SP[slack.ts]
+            SDIR[users.list]
+            SDM[chat.postMessage]
+        end
+
+        SCH[scheduler.ts]
+    end
+
+    U1 -->|message| GW
+    U2 -->|message| GW
+    GW -->|dispatch| AG
+    AG -->|tool call| PC
+    PC --> RC
+    RC -->|channel=feishu| LP
+    RC -->|channel=slack| SP
+    LP --> LCAL
+    LP --> LDIR
+    LP --> LDM
+    SP --> SDIR
+    SP --> SDM
+    PC --> SCH
+    PC <-->|read/write| MS
+
+    style RC fill:#f59e0b,color:#000
+    style MS fill:#3b82f6,color:#fff
+    style LP fill:#00D09C,color:#fff
+    style SP fill:#4A154B,color:#fff
+    style SCH fill:#8b5cf6,color:#fff
 ```
 
-### Background Processes
+## Meeting Lifecycle
 
+```mermaid
+stateDiagram-v2
+    [*] --> Collecting: find_and_book_meeting
+    note right of Collecting: DM each attendee\nfor availability
+
+    Collecting --> FastPath: All accepted
+    Collecting --> Scoring: Some proposed alternatives
+    Collecting --> Cancelled: All declined
+    Collecting --> Expired: 12h timeout
+
+    FastPath --> Committed: commitMeeting()
+
+    Scoring --> Confirming: Initiator picks slot\n(confirm_meeting_slot)
+    note right of Scoring: scoreSlots() ranks\nby attendee coverage
+
+    Confirming --> Committed: All confirm chosen slot
+    Confirming --> Cancelled: Declined
+
+    Committed --> [*]: Calendar event created
+    Cancelled --> [*]: Meeting closed
+    Expired --> [*]: Auto-cancelled
 ```
-┌─ TICKER (setInterval every 60s) ──────────────────────────────────┐
-│                                                                    │
-│  For each open PendingMeeting:                                    │
-│                                                                    │
-│  1. EXPIRY CHECK: now >= expiresAt (12h)?                         │
-│     → close meeting, DM initiator "已超过12小时, 已自动取消"        │
-│     → store.save()                                                │
-│                                                                    │
-│  2. STATUS UPDATE: now - lastStatusUpdateAt >= 1h?                │
-│     → DM initiator roll-call "2/3 已回复, 剩余 Xh"               │
-│     → store.save()                                                │
-│                                                                    │
-│  3. GC: remove closed meetings older than 12h from memory         │
-└────────────────────────────────────────────────────────────────────┘
 
-┌─ DEBOUNCE (setTimeout 30s per meeting) ────────────────────────────┐
-│                                                                    │
-│  Triggered when all attendees respond.                            │
-│  New response within 30s → clearTimeout + restart                 │
-│  30s elapsed → finaliseMeeting()                                  │
-└────────────────────────────────────────────────────────────────────┘
+## Request Processing Pipeline
+
+```mermaid
+flowchart LR
+    subgraph "1. Message Received"
+        MSG[User Message]
+    end
+
+    subgraph "2. Intent Recognition"
+        LLM[LLM parses intent]
+    end
+
+    subgraph "3. Platform Routing"
+        CTX{ctx.messageChannel}
+        F[Feishu Provider]
+        S[Slack Provider]
+    end
+
+    subgraph "4. Name Resolution"
+        NR{resolveUsers}
+        DIR[Directory Walk]
+        CAND[Return Candidates]
+        PICK[LLM Picks Match]
+    end
+
+    subgraph "5. Meeting Creation"
+        DUP{Dedup Check}
+        PM[Create PendingMeeting]
+        DM[Send DM Invites]
+        SAVE[store.save]
+    end
+
+    MSG --> LLM --> CTX
+    CTX -->|feishu| F
+    CTX -->|slack| S
+    F --> NR
+    S --> NR
+    NR -->|found| DUP
+    NR -->|not found| DIR --> CAND --> PICK -->|re-invoke| NR
+    DUP -->|new| PM --> DM --> SAVE
+    DUP -->|duplicate| RET[Return existing ID]
+
+    style CTX fill:#f59e0b,color:#000
+    style DUP fill:#ef4444,color:#fff
+    style SAVE fill:#3b82f6,color:#fff
 ```
 
-### File Structure
+## Attendee Response Flow
+
+```mermaid
+flowchart TD
+    REPLY[Attendee replies in DM] --> PARSE{LLM parses response}
+
+    PARSE -->|"同意/可以/行"| ACC[status = accepted]
+    PARSE -->|"拒绝/不行"| DEC[status = declined]
+    PARSE -->|"15:30-17:00有空"| ALT[status = proposed_alt]
+    PARSE -->|"让XXX替我去"| DEL[Delegation]
+    PARSE -->|"random noise"| IGN[Ask for clarification]
+
+    ACC --> MERGE{Merge Mode}
+    DEC --> MERGE
+    ALT --> MERGE
+
+    DEL --> D1[Mark original: declined]
+    D1 --> D2[Resolve delegate name]
+    D2 --> D3[Add delegate as pending]
+    D3 --> D4[DM delegate with invite]
+
+    MERGE -->|append default| UNION[Union windows]
+    MERGE -->|replace| OVERWRITE[Overwrite previous]
+
+    UNION --> CHECK{All responded?}
+    OVERWRITE --> CHECK
+
+    CHECK -->|No| WAIT[Wait for others]
+    CHECK -->|Yes| DEBOUNCE[30s debounce timer]
+
+    DEBOUNCE -->|New response in 30s| RESET[Reset timer]
+    RESET --> DEBOUNCE
+    DEBOUNCE -->|30s elapsed| FINAL[finaliseMeeting]
+
+    style ACC fill:#22c55e,color:#fff
+    style DEC fill:#ef4444,color:#fff
+    style ALT fill:#f59e0b,color:#000
+    style DEL fill:#8b5cf6,color:#fff
+    style DEBOUNCE fill:#3b82f6,color:#fff
+```
+
+## Background Processes
+
+```mermaid
+flowchart LR
+    subgraph "Ticker (every 60s)"
+        T1[Check all open meetings]
+        T2{now >= expiresAt?}
+        T3[Close + DM initiator]
+        T4{Status update due?}
+        T5[DM roll-call to initiator]
+        T6[GC expired meetings]
+    end
+
+    T1 --> T2
+    T2 -->|Yes, 12h passed| T3
+    T2 -->|No| T4
+    T4 -->|Yes, 1h since last| T5
+    T4 -->|No| T6
+
+    style T3 fill:#ef4444,color:#fff
+    style T5 fill:#3b82f6,color:#fff
+```
+
+## Safety Mechanisms
+
+```mermaid
+flowchart TD
+    subgraph "Concurrent Dedup (Layer 1)"
+        L1[60 parallel tool calls]
+        L1P[inflightFindAndBook Map]
+        L1R[Share single Promise]
+        L1 --> L1P --> L1R
+    end
+
+    subgraph "Idempotency (Layer 2)"
+        L2[Sequential retry]
+        L2H[SHA256 fingerprint]
+        L2W[60s window check]
+        L2 --> L2H --> L2W
+    end
+
+    subgraph "Debounce"
+        DB1[Last response received]
+        DB2[setTimeout 30s]
+        DB3[New response?]
+        DB4[clearTimeout + restart]
+        DB5[finaliseMeeting]
+        DB1 --> DB2 --> DB3
+        DB3 -->|Yes| DB4 --> DB2
+        DB3 -->|No, 30s elapsed| DB5
+    end
+
+    subgraph "Persistence"
+        PS1[State mutation]
+        PS2[store.save to JSON]
+        PS3[Gateway restart]
+        PS4[store.hydrate from disk]
+        PS1 --> PS2
+        PS3 --> PS4
+    end
+
+    style L1R fill:#22c55e,color:#fff
+    style L2W fill:#22c55e,color:#fff
+    style DB5 fill:#3b82f6,color:#fff
+    style PS4 fill:#3b82f6,color:#fff
+```
+
+## File Structure
 
 ```
 Meeting_new/
 ├── docs/
-│   ├── flow-diagram.md         ← Mermaid sequence diagrams
-│   ├── diff.md                 ← Plugin vs Skill 6-scenario comparison
-│   └── plugin-vs-skill.md      ← Architecture comparison (deprecated)
+│   ├── flow-diagram.md              Mermaid sequence diagrams
+│   ├── diff.md                      Plugin vs Skill 6-scenario analysis
+│   └── plugin-vs-skill.md           Architecture comparison
 │
-├── plugin_version/              ← Original Plugin (v0.2.0)
+├── plugin_version/                   Original Plugin (v1.0)
 │   ├── src/
-│   │   ├── index.ts             ← 1908 lines, 6 tools, single-file plugin
-│   │   ├── scheduler.ts         ← Time slot algorithm
-│   │   ├── load-env.ts          ← .env loader
+│   │   ├── index.ts                  1908 lines, 6 tools, single-file
+│   │   ├── scheduler.ts             Time slot algorithm
 │   │   └── providers/
-│   │       ├── types.ts         ← CalendarProvider interface
-│   │       ├── lark.ts          ← Feishu backend (1020 lines)
-│   │       ├── google.ts        ← Google Calendar backend
-│   │       └── mock.ts          ← Mock for testing
-│   ├── openclaw.plugin.json
-│   └── package.json
+│   │       ├── lark.ts              Feishu backend (1020 lines)
+│   │       ├── google.ts            Google Calendar backend
+│   │       └── mock.ts             Test mock
+│   └── openclaw.plugin.json
 │
-└── skill_version/               ← Skill-packaged Plugin (v0.3.0)
-    ├── SKILL.md                 ← LLM instructions (trigger phrases, tool guide)
+└── skill_version/                    Skill-packaged Plugin (v2.0)
+    ├── SKILL.md                      LLM instructions
     ├── src/
-    │   ├── index.ts             ← 70 lines, entry point (platforms config)
-    │   ├── plugin-core.ts       ← 1176 lines, 7 tools, multi-platform routing
-    │   ├── meeting-store.ts     ← 222 lines, in-memory Map + file persistence
-    │   ├── scheduler.ts         ← 243 lines, slot finding + scoring
-    │   ├── load-env.ts          ← .env loader (ESM compatible)
+    │   ├── index.ts                  Entry point (platform config)
+    │   ├── plugin-core.ts            1176 lines, 7 tools, multi-platform
+    │   ├── meeting-store.ts          Persistent state layer
+    │   ├── scheduler.ts             Slot finding + scoring
     │   └── providers/
-    │       ├── types.ts         ← CalendarProvider interface
-    │       ├── lark.ts          ← Feishu backend (770 lines)
-    │       └── slack.ts         ← Slack backend (345 lines)
-    ├── pending/                 ← Runtime state (persisted meetings)
-    ├── openclaw.plugin.json     ← Plugin manifest + Skill declaration
-    ├── package.json             ← ESM, @slack/web-api + googleapis + luxon
-    └── .gitignore               ← Excludes .env, node_modules, dist, pending
+    │       ├── lark.ts              Feishu (770 lines)
+    │       └── slack.ts             Slack (345 lines)
+    ├── pending/                      Runtime meeting state
+    └── openclaw.plugin.json         Plugin + Skill manifest
 ```
 
-### Version Comparison
+## 7 Tools
 
-| Feature | plugin_version | skill_version |
+| Tool | Description | Trigger Phrases |
 |---|---|---|
-| Tools | 6 | 7 (+confirm_meeting_slot) |
-| Platforms | Feishu only | Feishu + Slack |
-| Routing | Single provider | ctx.messageChannel routing |
-| State | In-memory only | In-memory + file persistence |
-| Restart recovery | State lost | State preserved |
-| Negotiation | Simple (accept/decline/alt) | 3-phase (collecting/scoring/confirming) |
-| Scoring | No | Yes (scoreSlots) |
-| Delegation | No | Yes ("让XXX替我去") |
-| Module system | CommonJS | ESM (Node16) |
-| Installation | `openclaw plugins install` | `openclaw skills add` (user-friendly) |
-
-### 7 Tools
-
-| Tool | Description | Triggers |
-|---|---|---|
-| `find_and_book_meeting` | Create pending meeting, resolve names, send DM invites | 约会议/帮我约/安排会议/开个会 |
+| `find_and_book_meeting` | Create pending meeting, resolve names, send DM invites | 约会议 / 帮我约 / 安排会议 / 开个会 |
 | `list_my_pending_invitations` | List sender's pending invitations | (before replying to invite) |
-| `record_attendee_response` | Record accept/decline/alt with merge logic | 同意/拒绝/我只有...有空 |
+| `record_attendee_response` | Record accept / decline / alternative with merge logic | 同意 / 拒绝 / 我只有...有空 |
 | `confirm_meeting_slot` | Initiator picks time slot after scoring | (after receiving scoring report) |
-| `list_upcoming_meetings` | List upcoming calendar events | 我有什么会/明天有什么会 |
+| `list_upcoming_meetings` | List upcoming calendar events | 我有什么会 / 明天有什么会 |
 | `cancel_meeting` | Cancel by event ID | 取消会议 |
 | `debug_list_directory` | List tenant directory users | 显示通讯录 |
 
-### Setup
+## Quick Start
 
 ```bash
 cd skill_version
@@ -221,9 +327,9 @@ openclaw plugins install -l .
 openclaw gateway --force
 ```
 
-### Configuration (.env)
+## Configuration (.env)
 
-```
+```env
 # Feishu
 LARK_APP_ID=cli_xxx
 LARK_APP_SECRET=xxx
@@ -239,127 +345,43 @@ LUNCH_BREAK=12:00-13:30
 BUFFER_MINUTES=15
 ```
 
-### Key Mechanisms
-
-| Mechanism | Implementation | Purpose |
-|---|---|---|
-| In-flight dedup | `inflightFindAndBook` Map + Promise sharing | Prevent Kimi K2.5's parallel duplicate calls |
-| Post-resolve idempotency | `recentFindAndBook` Map + SHA256 + 60s window | Prevent sequential retries creating duplicate meetings |
-| 30s Debounce | `setTimeout` / `clearTimeout` in `scheduleFinalize()` | Give attendees time to correct responses |
-| 12h TTL | Background ticker checks `expiresAt` every 60s | Auto-cancel unresponsive meetings |
-| File persistence | `MeetingStore.save()` writes `pending/mtg_xxx.json` | Survive gateway restarts |
-| Platform routing | `resolveCtx()` reads `ctx.messageChannel` | Route Feishu/Slack to correct provider |
-| Name resolution | Provider returns candidates, LLM picks best match | Two-step resolution without fuzzy matching |
-| Slot scoring | `scoreSlots()` counts attendee coverage per slot | Rank "best compromise" when not all can meet |
-
 ---
 
 <a id="中文"></a>
 
+<div align="center">
+
 ## 中文
 
-OpenClaw 多平台会议调度插件。通过飞书和 Slack 的自然语言安排会议，自动按平台路由。
+</div>
 
-本仓库包含两个版本：
-- **`plugin_version/`** — 原始 OpenClaw Plugin（内存状态，6 个工具）
-- **`skill_version/`** — Skill 包装的 Plugin（7 个工具，文件持久化）
+### 项目简介
 
-### 架构概览
+OpenClaw 多平台 AI 会议调度插件。用自然语言在飞书和 Slack 中安排会议，自动按平台路由，解析参会人姓名，通过私信收集时间偏好，智能评分排序时段，自动创建日历事件。
 
-```
-用户 (飞书/Slack)
-  │
-  ▼
-OpenClaw Gateway
-  │  按 ctx.messageChannel 路由
-  ▼
-plugin-core.ts ── resolveCtx(ctx) ──┬── feishu ── LarkCalendarProvider
-                                     │              ├─ 飞书日历 API
-                                     │              ├─ 飞书通讯录 API（部门遍历）
-                                     │              └─ 飞书消息 API（私信）
-                                     │
-                                     └── slack ─── SlackProvider
-                                                    ├─ Slack users.list / users.info
-                                                    ├─ Slack chat.postMessage（私信）
-                                                    └─ 日历接口（待实现）
-```
+### 核心能力
 
-### 完整业务流程
-
-```
-1. 用户发消息: "帮我和博泽约个会, 明天下午, 30分钟"
-   │
-   ▼
-2. Gateway 分发到 agent session → LLM 识别意图 → 调用 find_and_book_meeting
-   │
-   ▼
-3. plugin-core.ts:
-   a. resolveCtx() → 检测平台（飞书/Slack）
-   b. normalizeAttendees() → 按平台验证用户 ID 格式
-   c. 并发去重（Layer 1: Promise 共享）
-   d. provider.resolveUsers() → 解析名字
-      ├─ 成功 → 得到 open_id / user_id
-      └─ 失败 → 返回候选列表给 LLM → LLM 选最佳匹配 → 重新调用工具
-   e. 幂等性检查（Layer 2: SHA256 60s 窗口）
-   f. 创建 PendingMeeting（channel, phase=collecting）
-   g. store.save() → 持久化到 pending/mtg_xxx.json
-   h. provider.sendTextDM() → 给每个参会人发邀请私信
-   │
-   ▼
-4. 参会人在各自的 DM 中回复:
-   "同意" → accepted | "我只有15:30-17:00有空" → proposed_alt | "拒绝" → declined
-   LLM → 调用 record_attendee_response
-   a. 自动解析 meetingId
-   b. 合并逻辑: append（默认，合并时段）或 replace（仅显式更正时）
-   c. 委托: "让XXX替我去" → 标记拒绝 + 添加委托人
-   d. store.save()
-   e. 全部回复 → 触发 scheduleFinalize（30s 防抖）
-   │
-   ▼
-5. 定稿状态机:
-   ┌─ COLLECTING（收集回复）────────────────────────────┐
-   │ 全部接受? → commitMeeting()（快速路径）              │
-   │ 有人提出替代时段? → scoreSlots() 打分               │
-   │   → 按参会人覆盖数排名 → 私信发起者排名结果          │
-   │   → phase = "scoring"                              │
-   └─────────────────────────────────────────────────────┘
-   ┌─ SCORING（打分）────────────────────────────────────┐
-   │ 发起者调用 confirm_meeting_slot 选择时段             │
-   │   → 重置参会人状态 → 私信通知确认 → phase=confirming │
-   └─────────────────────────────────────────────────────┘
-   ┌─ CONFIRMING（确认）─────────────────────────────────┐
-   │ 参会人确认/拒绝 → 全部回复 → commitMeeting()        │
-   └─────────────────────────────────────────────────────┘
-   │
-   ▼
-6. commitMeeting():
-   a. provider.createEvent() → 创建日历事件
-   b. provider.sendTextDM() → 通知发起者 "已锁定 15:30-16:00"
-   c. meeting.closed = true → store.save()
-```
-
-### 后台进程
-
-| 进程 | 间隔 | 作用 |
-|---|---|---|
-| Ticker | 每 60 秒 | 检查超时（12h）+ 定期状态更新（每 1h）+ 垃圾回收 |
-| Debounce | 30 秒（每个会议） | 最后一个回复后等 30s 再定稿，给参会人纠错窗口 |
+- **多平台路由** — 飞书和 Slack 消息自动路由到对应的 Provider
+- **智能名称解析** — 两步解析：Provider 查通讯录返回候选列表，LLM 语义匹配选人
+- **三阶段协商** — 收集回复 → 时段打分 → 发起者确认
+- **委托功能** — 支持"让 XXX 替我去"
+- **防抖定稿** — 最后一个回复后等 30s 再定稿，给参会人纠错窗口
+- **并发安全** — 双层去重防止 LLM 批量重复调用
+- **持久化** — 文件存储，Gateway 重启不丢数据
+- **12h 超时** — 后台每分钟检查，超时自动取消并通知
 
 ### 版本对比
 
-| 特性 | plugin_version | skill_version |
+| 特性 | plugin_version (v1.0) | skill_version (v2.0) |
 |---|---|---|
-| 工具数 | 6 | 7（+confirm_meeting_slot） |
+| 工具数 | 6 | 7 (+时段确认) |
 | 平台 | 仅飞书 | 飞书 + Slack |
-| 路由 | 单 provider | ctx.messageChannel 路由 |
 | 状态 | 纯内存 | 内存 + 文件持久化 |
-| 重启恢复 | 状态丢失 | 状态保留 |
-| 协商 | 简单（接受/拒绝/替代） | 三阶段（collecting/scoring/confirming） |
-| 打分 | 无 | 有（scoreSlots） |
-| 委托 | 无 | 有（"让XXX替我去"） |
-| 模块系统 | CommonJS | ESM（Node16） |
+| 协商 | 简单接受/拒绝 | 三阶段打分协商 |
+| 委托 | 无 | 支持 |
+| 模块 | CommonJS | ESM (Node16) |
 
-### 安装
+### 快速开始
 
 ```bash
 cd skill_version
@@ -369,9 +391,21 @@ openclaw plugins install -l .
 openclaw gateway --force
 ```
 
-### 配置 (.env)
+### 使用示例
 
 ```
+"帮我和博泽约个会，明天下午，30分钟"
+"我只有15:30-17:00有空"
+"让子岩替我去"
+"同意"
+"我明天有什么会？"
+"取消上午的设计评审"
+"显示通讯录"
+```
+
+### 配置 (.env)
+
+```env
 # 飞书
 LARK_APP_ID=cli_xxx
 LARK_APP_SECRET=xxx
@@ -386,19 +420,6 @@ WORK_HOURS=09:00-18:00
 LUNCH_BREAK=12:00-13:30
 BUFFER_MINUTES=15
 ```
-
-### 关键机制
-
-| 机制 | 实现 | 用途 |
-|---|---|---|
-| 并发去重 | inflightFindAndBook Map + Promise 共享 | 防止 Kimi K2.5 批量重复调用 |
-| 幂等性 | recentFindAndBook + SHA256 + 60s 窗口 | 防止重试创建重复会议 |
-| 30s 防抖 | scheduleFinalize() 的 setTimeout/clearTimeout | 给参会人纠错时间 |
-| 12h TTL | 后台 ticker 每分钟检查 expiresAt | 自动取消无人回复的会议 |
-| 文件持久化 | MeetingStore.save() 写 pending/mtg_xxx.json | 重启不丢数据 |
-| 平台路由 | resolveCtx() 读 ctx.messageChannel | 飞书/Slack 路由到正确的 provider |
-| 名称解析 | Provider 返回候选列表，LLM 语义匹配 | 两步解析，不做模糊匹配 |
-| 时段打分 | scoreSlots() 按参会人覆盖数排序 | 无法全员参加时找"最佳妥协"时段 |
 
 ## License
 
