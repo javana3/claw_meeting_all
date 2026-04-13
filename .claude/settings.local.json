@@ -77,7 +77,25 @@
       "Bash(git reset:*)",
       "Bash(ls TEST_CASES*.*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebFetch(domain:zhuanlan.zhihu.com)",
+      "WebFetch(domain:grapecity.csdn.net)",
+      "WebFetch(domain:www.jetems.com)",
+      "WebFetch(domain:lumadock.com)",
+      "WebFetch(domain:www.digitalocean.com)",
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(mkdir -p plugin_version)",
+      "Bash(mv src:*)",
+      "Bash(cp plugin_version/src/scheduler.ts skill_version/src/)",
+      "Bash(cp plugin_version/src/load-env.ts skill_version/src/)",
+      "Bash(cp plugin_version/src/providers/types.ts skill_version/src/providers/)",
+      "Bash(cp plugin_version/src/providers/lark.ts skill_version/src/providers/)",
+      "Bash(cp plugin_version/src/providers/google.ts skill_version/src/providers/)",
+      "Bash(sed -i 's|from \"./types\"|from \"./types.js\"|g' providers/google.ts providers/lark.ts providers/mock.ts)",
+      "Bash(sed -i 's|from \"./providers/types\"|from \"./providers/types.js\"|g' scheduler.ts)",
+      "Bash(echo \"---EXIT:$?\")",
+      "Bash(grep -n \"^        },$\" \"C:/Users/dfgfd/Desktop/Meeting_new/skill_version/src/index.ts\")",
+      "Bash(wc -l skill_version/src/*.ts skill_version/src/providers/*.ts)"
     ]
   }
 }

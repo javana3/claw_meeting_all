@@ -1,0 +1,26 @@
+{
+  "id": "meeting-scheduler",
+  "name": "Meeting Scheduler",
+  "version": "0.3.0",
+  "description": "Find a common free slot for attendees and book a calendar meeting via natural language.",
+  "main": "dist/index.js",
+  "engines": { "openclaw": ">=0.5.0" },
+  "skills": ["./"],
+  "configSchema": {
+    "LARK_APP_ID":          { "type": "string", "required": false, "description": "Feishu app id (cli_xxx). Set this to enable the Lark backend." },
+    "LARK_APP_SECRET":      { "type": "string", "required": false, "secret": true },
+    "LARK_CALENDAR_ID":     { "type": "string", "required": false, "description": "Calendar id to write events into. The app must have edit access." },
+
+    "GOOGLE_CLIENT_ID":     { "type": "string", "required": false, "description": "Google OAuth client id (only needed if not using Lark)" },
+    "GOOGLE_CLIENT_SECRET": { "type": "string", "required": false, "secret": true },
+    "GOOGLE_REFRESH_TOKEN": { "type": "string", "required": false, "secret": true },
+    "ORGANIZER_EMAIL":      { "type": "string", "required": false },
+
+    "SLACK_BOT_TOKEN":      { "type": "string", "required": false, "secret": true, "description": "Slack bot token (xoxb-...). Set this to enable Slack support." },
+
+    "DEFAULT_TIMEZONE":     { "type": "string", "required": false, "default": "Asia/Shanghai" },
+    "WORK_HOURS":           { "type": "string", "required": false, "default": "09:00-18:00" },
+    "LUNCH_BREAK":          { "type": "string", "required": false, "default": "12:00-13:30" },
+    "BUFFER_MINUTES":       { "type": "number", "required": false, "default": 15 }
+  }
+}
