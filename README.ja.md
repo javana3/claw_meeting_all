@@ -12,47 +12,25 @@
 
 ## 概要
 
-ClawMeeting は、OpenClaw 向けの AI 駆動型会議スケジューリングシステムです。Feishu と Slack をまたいで複数参加者の会議を調整し、インテリジェントなタイムスロットスコアリング、自動委任、デバウンス制御によるファイナライズを備えた 3 フェーズネゴシエーションプロトコルで動作します。
+ClawMeeting は OpenClaw 向けの AI 搭載会議スケジューリングシステムです。自然言語を通じて Feishu と Slack をまたぐ複数参加者の会議を調整し、インテリジェントなタイムスロットスコアリング、3フェーズネゴシエーション、自動委任、デバウンス制御によるファイナライズを備えています。
 
-本番環境向けに 2 つのバージョンを提供しています：
-- **プラグイン版 (v1.0)** — CommonJS モノレポ構成。`claw-meeting-shared` パッケージに依存。実行にはモノレポ構成が必要です。
-- **スキル版 (v2.0)** — ESM 自己完結型。クローンしてすぐ実行可能。ファイルベースの永続化。`openclaw skills add` による簡単インストール。
+本リポジトリには2つの実装が含まれています:
+- **Plugin (v1.0)** — 初代プロダクション版。CommonJS モノレポ構成、`claw-meeting-shared` パッケージを使用。
+- **Skill (v2.0)** — 自己完結型の ESM 再実装。ファイルベースの永続化に対応。
+
+両バージョンとも **Feishu + Slack デュアルプラットフォームルーティング**、**7つのツール**、**同一のビジネスロジック** をサポートしています。
 
 ---
 
-## アーキテクチャ
+# Part 1: Plugin バージョン (v1.0)
+
+## Plugin アーキテクチャ
+
+Plugin はモノレポ構成を採用しています。コアのスケジューリングロジックは `shared/` パッケージ (`claw-meeting-shared`) に配置され、プラットフォーム固有のプロバイダーとエントリーポイントは別ディレクトリに分離されています。
 
 ```mermaid
 graph TD
-    A(ユーザーメッセージ) --> B(OpenClaw ゲートウェイ)
-    B --> C(ctx.messageChannel)
-    C -->|feishu| D(Feishu プロバイダー)
-    C -->|slack| E(Slack プロバイダー)
-    D --> F(カレンダー API)
-    E --> F
-    F --> G(スケジューラー - スロット検索 & スコアリング)
-    G --> H(ステートマシン - 3 フェーズネゴシエーション)
-    H --> I(会議確定)
-```
-
----
-
-## プラグイン版 (v1.0)
-
-初期の本番実装です。コアスケジューリングロジック、ステートマシン、ツール定義を含む共有 npm パッケージ `claw-meeting-shared` を持つモノレポ構成を採用しています。各プラットフォームに専用のエントリーポイントがあり、`unified/` エントリーが両プラットフォームをルーティングします。
-
-**主な特徴：**
-- モノレポ構成：`shared/`（コア）+ `unified/`（マルチプラットフォーム）+ `feishu/` + `slack/`（単一プラットフォーム）
-- `claw-meeting-shared` npm パッケージ（`shared/` ディレクトリ）に依存
-- 7 ツール、Feishu + Slack デュアルプラットフォームルーティング（`ctx.messageChannel` 経由）
-- インメモリ状態のみ — ゲートウェイ再起動で消失
-- CommonJS モジュールシステム
-
-### プラグイン構成
-
-```mermaid
-graph LR
-    subgraph "モノレポ"
+    subgraph "モノレポ構成"
         SHARED(shared / claw-meeting-shared)
         UNI(unified / index.ts)
         FEI(feishu / index.ts)
@@ -63,168 +41,181 @@ graph LR
     FEI -->|import| SHARED
     SLK -->|import| SHARED
 
-    SHARED --> CORE(plugin-core.ts - 7 ツール)
-    CORE --> ROUTER(ctx.messageChannel)
-    ROUTER -->|feishu| LP(Lark プロバイダー)
-    ROUTER -->|slack| SP(Slack プロバイダー)
-    CORE --> MEM(インメモリ Map)
-    CORE --> SCH(スケジューラー)
+    SHARED --> CORE(plugin-core.ts)
+    CORE --> TOOLS(登録済みツール 7個)
+    CORE --> SCHED(scheduler.ts)
+    CORE --> STATE(インメモリ State Map)
+
+    style SHARED fill:#3b82f6,color:#fff
+    style CORE fill:#0ea5e9,color:#fff
+    style STATE fill:#ef4444,color:#fff
 ```
 
----
+### Plugin エントリーポイント
 
-## スキル版 (v2.0)
+| エントリー | パス | 用途 |
+|---|---|---|
+| **unified** | `unified/src/index.ts` | マルチプラットフォーム (Feishu + Slack)。本番デフォルト。 |
+| **feishu** | `feishu/src/index.ts` | Feishu 専用デプロイ |
+| **slack** | `slack/src/index.ts` | Slack 専用デプロイ |
 
-ESM モジュールを使用した自己完結型の再実装です。外部パッケージ依存なし — すべてのコードが 1 つのディレクトリに収まっています。状態は `pending/*.json` ファイルに永続化され、ゲートウェイの再起動後も保持されます。`openclaw skills add` による簡単インストールのための `SKILL.md` を含みます。
+3つとも `claw-meeting-shared` をインポートし、プラットフォーム固有の設定で `createMeetingPlugin()` を呼び出します。
 
-**主な特徴：**
-- 自己完結型：クローン、`npm install`、`npm run build` で完了
-- モノレポ不要、`claw-meeting-shared` 依存なし
-- 7 ツール、Feishu + Slack デュアルプラットフォームルーティング（`ctx.messageChannel` 経由）
-- ファイル永続化状態（`pending/` 内の JSON）— 再起動後も保持
-- ESM モジュールシステム（Node16）
-- LLM 動作指示用の `SKILL.md`
-
-### スキル構成
+### Plugin プラットフォームルーティング
 
 ```mermaid
 graph LR
-    IDX(index.ts) --> CORE(plugin-core.ts - 7 ツール)
-    CORE --> ROUTER(ctx.messageChannel)
-    ROUTER -->|feishu| LP(Lark プロバイダー)
-    ROUTER -->|slack| SP(Slack プロバイダー)
-    CORE --> STORE(MeetingStore)
-    STORE --> MEM(インメモリ Map)
-    STORE --> DISK(pending/*.json)
-    CORE --> SCH(スケジューラー)
+    MSG(ユーザーメッセージ) --> GW(OpenClaw ゲートウェイ)
+    GW --> AGENT(エージェント LLM)
+    AGENT -->|tool call| CORE(plugin-core.ts)
+    CORE --> CTX(resolveCtx - ctx.messageChannel)
+    CTX -->|feishu| LP(LarkCalendarProvider)
+    CTX -->|slack| SP(SlackProvider)
+    LP --> LAPI(Feishu Calendar API)
+    LP --> LDIR(Feishu Contact API)
+    LP --> LDM(Feishu IM API)
+    SP --> SDIR(Slack users.list API)
+    SP --> SDM(Slack chat.postMessage)
+
+    style CTX fill:#0ea5e9,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
 ```
 
----
+### Plugin 会議フロー
 
-## 会議ライフサイクル
+Plugin を通じたステップバイステップのデータフロー:
+
+```mermaid
+graph TD
+    A(1. ユーザーが Feishu/Slack でメッセージを送信) --> B(2. ゲートウェイがエージェント LLM にディスパッチ)
+    B --> C(3. LLM がインテントを認識し find_and_book_meeting を呼び出し)
+    C --> D(4. resolveCtx が ctx.messageChannel からプラットフォームを検出)
+    D --> E(5. normalizeAttendees がプラットフォームルールに従い ID を検証)
+    E --> F(6. provider.resolveUsers がディレクトリに対して名前を解決)
+    F --> G(7. インフライト重複排除 レイヤー1 - Promise 共有)
+    G --> H(8. 解決後の冪等性チェック レイヤー2 - SHA256 60秒ウィンドウ)
+    H --> I(9. インメモリ Map に PendingMeeting を作成)
+    I --> J(10. provider.sendTextDM で各参加者に招待を送信)
+    J --> K(11. meetingId を LLM に返却、LLM がユーザーに返信)
+
+    style D fill:#0ea5e9,color:#fff
+    style G fill:#22c55e,color:#fff
+    style H fill:#22c55e,color:#fff
+    style I fill:#ef4444,color:#fff
+```
+
+### Plugin 参加者レスポンスフロー
+
+```mermaid
+graph TD
+    A(参加者が DM 招待を受信) --> B(自身の DM セッションで返信)
+    B --> C(LLM がレスポンスを解析)
+    C -->|承諾| D(status = accepted)
+    C -->|辞退| E(status = declined)
+    C -->|時間帯指定| F(status = proposed_alt + windows)
+    C -->|委任| G(辞退 + 委任先を解決 + 新しい招待を送信)
+    C -->|ノイズ| H(確認を求める、ツールを呼び出さない)
+
+    D --> MERGE(マージロジック - 追加または置換モード)
+    E --> MERGE
+    F --> MERGE
+    G --> MERGE
+
+    MERGE --> CHECK(pendingCount を確認)
+    CHECK -->|他にまだ未応答あり| WAIT(追加レスポンスを待機)
+    CHECK -->|全員応答済み| DEBOUNCE(scheduleFinalize - 30秒デバウンス)
+    DEBOUNCE -->|30秒以内に新しいレスポンス| RESET(clearTimeout, 30秒を再スタート)
+    RESET --> DEBOUNCE
+    DEBOUNCE -->|30秒経過| FINAL(finaliseMeeting)
+
+    style MERGE fill:#0ea5e9,color:#fff
+    style DEBOUNCE fill:#3b82f6,color:#fff
+    style FINAL fill:#22c55e,color:#fff
+```
+
+### Plugin ファイナライズステートマシン
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Collecting: find_and_book_meeting
-    note right of Collecting: 各参加者に空き状況を DM で確認
+    [*] --> Collecting: find_and_book_meeting が PendingMeeting を作成
 
-    Collecting --> FastPath: 全員承諾
-    Collecting --> Scoring: 代替案の提案あり
-    Collecting --> Cancelled: 全員辞退
-    Collecting --> Expired: 12 時間タイムアウト
+    Collecting --> FastPath: 全参加者が承諾
+    Collecting --> Scoring: 一部が代替案を提示
+    Collecting --> Failed: 全員が辞退
+    Collecting --> Expired: 12時間タイムアウト (ticker)
 
-    FastPath --> Committed: commitMeeting
+    FastPath --> Committed: commitMeeting がカレンダーイベントを作成
 
-    Scoring --> Confirming: confirm_meeting_slot
-    note right of Scoring: scoreSlots が参加者カバレッジでランク付け
+    Scoring --> Confirming: 発起者が confirm_meeting_slot を呼び出し
+    note right of Scoring: scoreSlots が参加者カバレッジでスロットをランク付け
 
-    Confirming --> Committed: 全員確認
-    Confirming --> Cancelled: 辞退
+    Confirming --> Committed: 参加者が選択されたスロットを確認
+    Confirming --> Failed: スロットが拒否された
 
-    Committed --> [*]: カレンダーイベント作成
-    Cancelled --> [*]: 会議終了
-    Expired --> [*]: 自動キャンセル
+    Committed --> [*]: 発起者にイベントリンクを DM
+    Failed --> [*]: 発起者に失敗理由を DM
+    Expired --> [*]: 発起者に自動キャンセルを DM
 ```
 
----
-
-## 参加者の応答フロー
+### Plugin バックグラウンドティッカー
 
 ```mermaid
 graph TD
-    A(参加者が DM 招待を受信) --> B(DM で返信)
-    B --> C(LLM が応答を解析)
-    C -->|承諾| D(status = accepted)
-    C -->|辞退| E(status = declined)
-    C -->|希望時間帯| F(status = proposed_alt)
-    C -->|委任| G(辞退として記録 + 代理人を追加)
-    C -->|ノイズ| H(確認を依頼)
+    TICK(setInterval 60秒ごと) --> GC(gcPending - 古い会議をクリーンアップ)
+    GC --> LOOP(各オープン状態の PendingMeeting に対して)
+    LOOP --> EXP(確認: now >= expiresAt 12時間?)
+    EXP -->|はい| CLOSE(会議をクローズ + 発起者に自動キャンセルを DM)
+    EXP -->|いいえ| STATUS(確認: 最終ステータス更新から1時間経過?)
+    STATUS -->|はい| DM(発起者にロールコール DM: X/Y 応答済み)
+    STATUS -->|いいえ| NEXT(次の会議)
 
-    D --> I(全員回答済み？)
-    E --> I
-    F --> I
-    G --> I
-
-    I -->|いいえ| J(他の参加者を待機)
-    I -->|はい| K(30 秒デバウンス)
-    K --> L(finaliseMeeting)
+    style CLOSE fill:#ef4444,color:#fff
+    style DM fill:#3b82f6,color:#fff
 ```
 
----
+### Plugin ステート管理
 
-## バックグラウンド処理
-
-```mermaid
-graph TD
-    A(タイマー - 60 秒ごと) --> B(各オープン会議を確認)
-    B --> C(now >= expiresAt？)
-    C -->|はい - 12 時間経過| D(クローズ + 発起者に DM)
-    C -->|いいえ| E(ステータス更新の時期？)
-    E -->|はい - 前回から 1 時間経過| F(発起者にロールコール DM)
-    E -->|いいえ| G(スキップ)
-```
-
----
-
-## ツール一覧
-
-| # | ツール | 説明 |
-|---|--------|------|
-| 1 | `find_and_book_meeting` | 保留中の会議を作成、参加者名を解決、DM 招待を送信 |
-| 2 | `list_my_pending_invitations` | 現在の送信者の保留中の招待を一覧表示 |
-| 3 | `record_attendee_response` | 承諾 / 辞退 / 代替案の提案 / 委任を記録 |
-| 4 | `confirm_meeting_slot` | スコアリング結果に基づき発起者がタイムスロットを選択 |
-| 5 | `list_upcoming_meetings` | 今後のカレンダーイベントを一覧表示 |
-| 6 | `cancel_meeting` | イベント ID で会議をキャンセル |
-| 7 | `debug_list_directory` | テナントディレクトリのユーザーを一覧表示（診断用） |
-
----
-
-## ファイル構成
+全ステートはインメモリです。ゲートウェイの再起動 = 全ペンディング会議が消失します。
 
 ```
-plugin_version/                      モノレポ（claw-meeting-shared が必要）
-├── shared/                          コアロジックパッケージ
-│   └── src/
-│       ├── plugin-core.ts           7 ツール、ルーティング、ステートマシン（1131 行）
-│       ├── scheduler.ts             スロット検索 + スコアリング
-│       ├── load-env.ts              .env ローダー
-│       └── providers/types.ts       CalendarProvider インターフェース
-├── unified/                         マルチプラットフォームエントリー（Feishu + Slack）
-│   └── src/
-│       ├── index.ts                 プラットフォーム設定
-│       └── providers/
-│           ├── lark.ts              Feishu バックエンド
-│           └── slack.ts             Slack バックエンド
+pendingMeetings: Map<string, PendingMeeting>     ← 進行中の会議
+recentFindAndBook: Map<string, {meetingId, at}>   ← 冪等性 (60秒ウィンドウ)
+inflightFindAndBook: Map<string, Promise>         ← 同時実行の重複排除
+```
+
+### Plugin ファイル構成
+
+```
+plugin_version/
+├── shared/                          claw-meeting-shared パッケージ
+│   ├── src/
+│   │   ├── index.ts                 パッケージエクスポート
+│   │   ├── plugin-core.ts           コアロジック: ツール7個、ルーティング、ステートマシン (1131行)
+│   │   ├── scheduler.ts             スロット検索、スコアリング、交差計算 (257行)
+│   │   ├── load-env.ts              .env ローダー
+│   │   └── providers/types.ts       CalendarProvider インターフェース
+│   ├── package.json                 claw-meeting-shared
+│   └── tsconfig.json
+├── unified/                         マルチプラットフォームエントリー (Feishu + Slack)
+│   ├── src/
+│   │   ├── index.ts                 プラットフォーム設定 + createMeetingPlugin()
+│   │   └── providers/
+│   │       ├── lark.ts              Feishu バックエンド (1020行)
+│   │       └── slack.ts             Slack バックエンド (346行)
+│   ├── package.json                 claw-meeting-shared に依存
+│   └── tsconfig.json
 ├── feishu/                          Feishu 専用エントリー
 │   └── src/
 │       ├── index.ts                 単一プラットフォーム設定
-│       └── providers/lark.ts        Feishu バックエンド
+│       └── providers/lark.ts
 └── slack/                           Slack 専用エントリー
     └── src/
         ├── index.ts                 単一プラットフォーム設定
-        └── providers/slack.ts       Slack バックエンド
-
-skill_version/                       自己完結型（クローンして実行）
-├── SKILL.md                         LLM 指示書
-├── src/
-│   ├── index.ts                     エントリーポイント（プラットフォーム設定）
-│   ├── plugin-core.ts               7 ツール、ルーティング、ステートマシン（1176 行）
-│   ├── meeting-store.ts             永続化状態レイヤー（222 行）
-│   ├── scheduler.ts                 スロット検索 + スコアリング
-│   ├── load-env.ts                  .env ローダー（ESM）
-│   └── providers/
-│       ├── types.ts                 CalendarProvider インターフェース
-│       ├── lark.ts                  Feishu バックエンド
-│       └── slack.ts                 Slack バックエンド
-└── pending/                         ランタイム会議状態（JSON ファイル）
+        └── providers/slack.ts
 ```
 
----
-
-## クイックスタート
-
-### プラグイン版 (v1.0)
+### Plugin クイックスタート
 
 ```bash
 cd plugin_version/shared && npm install && npm run build
@@ -233,7 +224,180 @@ openclaw plugins install -l .
 openclaw gateway --force
 ```
 
-### スキル版 (v2.0)
+---
+
+# Part 2: Skill バージョン (v2.0)
+
+## Skill アーキテクチャ
+
+Skill バージョンは自己完結型の再実装です。モノレポなし、外部パッケージ依存なし。全コードが1つのディレクトリに収まります。クローンして、ビルドして、実行するだけです。
+
+```mermaid
+graph TD
+    IDX(index.ts - エントリー) --> CORE(plugin-core.ts - ツール7個)
+    CORE --> ROUTER(resolveCtx - ctx.messageChannel)
+    ROUTER -->|feishu| LP(LarkCalendarProvider - lark.ts)
+    ROUTER -->|slack| SP(SlackProvider - slack.ts)
+    CORE --> STORE(MeetingStore - meeting-store.ts)
+    STORE --> MEM(インメモリ Map)
+    STORE --> DISK(pending/*.json ファイル)
+    CORE --> SCHED(scheduler.ts)
+    IDX --> SKILL(SKILL.md - LLM 指示書)
+
+    style ROUTER fill:#0ea5e9,color:#fff
+    style STORE fill:#3b82f6,color:#fff
+    style DISK fill:#22c55e,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
+```
+
+### Plugin からの変更点
+
+| 項目 | Plugin (v1.0) | Skill (v2.0) |
+|---|---|---|
+| コード構成 | モノレポ (shared + unified + feishu + slack) | 単一ディレクトリ、自己完結型 |
+| モジュールシステム | CommonJS | ESM (Node16) |
+| 外部依存 | `claw-meeting-shared` パッケージ | なし (全てローカルインポート、`.js` サフィックス付き) |
+| ステート層 | インメモリ Map のみ | MeetingStore: Map + ファイル永続化 |
+| `__dirname` | CJS ネイティブグローバル | `fileURLToPath(import.meta.url)` |
+| エクスポート | `module.exports = plugin` | `export default plugin; export { plugin }` |
+| SKILL.md | なし | `openclaw skills add` 用に同梱 |
+
+### Skill プラットフォームルーティング
+
+Plugin と同一。`resolveCtx()` が `ctx.messageChannel` を読み取り、適切なプロバイダーにルーティングします:
+
+```mermaid
+graph LR
+    MSG(ユーザーメッセージ) --> GW(OpenClaw ゲートウェイ)
+    GW --> AGENT(エージェント LLM)
+    AGENT -->|tool call| CORE(plugin-core.ts)
+    CORE --> CTX(resolveCtx - ctx.messageChannel)
+    CTX -->|feishu| LP(LarkCalendarProvider)
+    CTX -->|slack| SP(SlackProvider)
+    LP --> LAPI(Feishu API)
+    SP --> SAPI(Slack API)
+
+    style CTX fill:#0ea5e9,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
+```
+
+### Skill 会議フロー
+
+Plugin と同じビジネスロジックに永続化を追加:
+
+```mermaid
+graph TD
+    A(1. ユーザーがメッセージを送信) --> B(2. LLM が find_and_book_meeting を呼び出し)
+    B --> C(3. resolveCtx がプラットフォームを検出)
+    C --> D(4. プロバイダー経由で参加者名を解決)
+    D --> E(5. 重複排除チェック レイヤー1 + レイヤー2)
+    E --> F(6. PendingMeeting を作成)
+    F --> G(7. store.save - pending/mtg_xxx.json に永続化)
+    G --> H(8. プロバイダー経由で DM 招待を送信)
+    H --> I(9. LLM に返却)
+
+    I --> J(10. 参加者が DM で返信)
+    J --> K(11. record_attendee_response + store.save)
+    K --> L(12. 全員応答済み - scheduleFinalize 30秒)
+    L --> M(13. finaliseMeeting - ステートマシン)
+    M --> N(14. commitMeeting + store.save)
+    N --> O(15. カレンダーイベント作成)
+
+    style G fill:#22c55e,color:#fff
+    style K fill:#22c55e,color:#fff
+    style N fill:#22c55e,color:#fff
+```
+
+緑色のノード = `store.save()` 永続化ポイント。ゲートウェイがどの時点で再起動しても、ステートは `pending/*.json` から復旧されます。
+
+### Skill ステート管理
+
+ハイブリッド: 速度のためのインメモリ、耐久性のためのファイル。
+
+```mermaid
+graph LR
+    subgraph "MeetingStore"
+        MAP(インメモリ Map - 高速アクセス)
+        FS(pending/mtg_xxx.json - 耐久性)
+    end
+
+    WRITE(ステート変更) --> MAP
+    WRITE --> FS
+    RESTART(ゲートウェイ再起動) --> HYDRATE(store.hydrate)
+    HYDRATE -->|pending ディレクトリをスキャン| MAP
+
+    style MAP fill:#3b82f6,color:#fff
+    style FS fill:#22c55e,color:#fff
+    style HYDRATE fill:#0ea5e9,color:#fff
+```
+
+### Skill ファイナライズステートマシン
+
+Plugin と同一:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Collecting: find_and_book_meeting
+
+    Collecting --> FastPath: 全員承諾
+    Collecting --> Scoring: 一部が proposed_alt
+    Collecting --> Failed: 全員辞退
+    Collecting --> Expired: 12時間タイムアウト
+
+    FastPath --> Committed: commitMeeting + store.save
+
+    Scoring --> Confirming: confirm_meeting_slot
+    note right of Scoring: scoreSlots がカバレッジでランク付け + store.save
+
+    Confirming --> Committed: 全員確認 + store.save
+
+    Committed --> [*]: カレンダーイベント作成
+    Failed --> [*]: クローズ + store.save
+    Expired --> [*]: 自動キャンセル + store.save
+```
+
+### Skill バックグラウンドティッカー
+
+Plugin と同一、全ステート変更時に `store.save()` を実行:
+
+```mermaid
+graph TD
+    TICK(setInterval 60秒ごと) --> GC(gcPending + gcIdempotency)
+    GC --> LOOP(各オープン状態の会議に対して)
+    LOOP --> EXP(12時間経過?)
+    EXP -->|はい| CLOSE(クローズ + DM + store.save)
+    EXP -->|いいえ| STATUS(最終更新から1時間経過?)
+    STATUS -->|はい| DM(ロールコール DM + store.save)
+    STATUS -->|いいえ| NEXT(次へ)
+
+    style CLOSE fill:#ef4444,color:#fff
+    style DM fill:#3b82f6,color:#fff
+```
+
+### Skill ファイル構成
+
+```
+skill_version/
+├── SKILL.md                         LLM 動作指示書
+├── src/
+│   ├── index.ts                     エントリーポイント - プラットフォーム設定 (70行)
+│   ├── plugin-core.ts               コアロジック: ツール7個、ルーティング、ステートマシン (1176行)
+│   ├── meeting-store.ts             MeetingStore: Map + ファイル永続化 (222行)
+│   ├── scheduler.ts                 スロット検索、スコアリング、交差計算 (243行)
+│   ├── load-env.ts                  .env ローダー (ESM 対応)
+│   └── providers/
+│       ├── types.ts                 CalendarProvider インターフェース
+│       ├── lark.ts                  Feishu バックエンド (770行)
+│       └── slack.ts                 Slack バックエンド (345行)
+├── pending/                         ランタイムステート (JSON ファイル、gitignore 対象)
+├── openclaw.plugin.json             Plugin + Skill マニフェスト
+├── package.json                     ESM、@slack/web-api + googleapis + luxon
+└── .gitignore                       .env、node_modules、dist、pending を除外
+```
+
+### Skill クイックスタート
 
 ```bash
 cd skill_version
@@ -245,9 +409,21 @@ openclaw gateway --force
 
 ---
 
-## 設定
+# Part 3: バージョン比較 (差分)
 
-両バージョンとも `.env` にプラットフォーム認証情報が必要です：
+## 7つのツール (両バージョン共通)
+
+| # | ツール | 説明 |
+|---|------|-------------|
+| 1 | `find_and_book_meeting` | ペンディング会議を作成、参加者名を解決、DM 招待を送信 |
+| 2 | `list_my_pending_invitations` | 現在の送信者のペンディング招待を一覧表示 |
+| 3 | `record_attendee_response` | 承諾 / 辞退 / 代替案提示 / 委任を記録 |
+| 4 | `confirm_meeting_slot` | スコアリング結果後に発起者がタイムスロットを選択 |
+| 5 | `list_upcoming_meetings` | 今後のカレンダーイベントを一覧表示 |
+| 6 | `cancel_meeting` | イベント ID で会議をキャンセル |
+| 7 | `debug_list_directory` | テナントディレクトリのユーザーを一覧表示 (診断用) |
+
+## 設定 (両バージョン共通)
 
 ```env
 # Feishu / Lark
@@ -258,58 +434,65 @@ LARK_CALENDAR_ID=xxxxx@group.calendar.feishu.cn
 # Slack
 SLACK_BOT_TOKEN=xoxb-xxxxx
 
-# スケジュールのデフォルト設定
+# スケジュールデフォルト
 DEFAULT_TIMEZONE=Asia/Shanghai
 WORK_HOURS=09:00-18:00
 LUNCH_BREAK=12:00-13:30
 BUFFER_MINUTES=15
 ```
 
----
+## 全体比較表
 
-## バージョン比較
-
-| 項目 | プラグイン版 (v1.0) | スキル版 (v2.0) |
-|------|---------------------|-----------------|
-| アーキテクチャ | モノレポ（shared + unified + feishu + slack） | 自己完結型（単一ディレクトリ） |
-| モジュールシステム | CommonJS | ESM（Node16） |
-| 依存関係 | `claw-meeting-shared` パッケージ | なし（すべてローカル） |
-| 可搬性 | モノレポ構成が必要 | クローンして実行 |
-| ツール数 | 7 | 7 |
-| プラットフォーム | Feishu + Slack | Feishu + Slack |
-| プラットフォームルーティング | `ctx.messageChannel` | `ctx.messageChannel` |
-| 状態保存 | インメモリ Map | インメモリ + ファイル永続化 |
-| 再起動時の復旧 | 状態消失 | 状態保持（pending/*.json） |
-| ネゴシエーション | 3 フェーズ（collecting/scoring/confirming） | 3 フェーズ（同一） |
-| スコアリング | あり（scoreSlots） | あり（同一） |
-| 委任 | あり | あり |
+| 項目 | Plugin (v1.0) | Skill (v2.0) |
+|---|---|---|
+| アーキテクチャ | モノレポ (shared + unified + feishu + slack) | 自己完結型 (単一ディレクトリ) |
+| モジュールシステム | CommonJS | ESM (Node16) |
+| 依存関係 | `claw-meeting-shared` パッケージ | なし (全てローカル) |
+| ポータビリティ | モノレポ + パッケージリンクが必要 | クローンして実行 |
+| ツール | 7 | 7 (同一) |
+| プラットフォーム | Feishu + Slack | Feishu + Slack (同一) |
+| プラットフォームルーティング | `ctx.messageChannel` via `resolveCtx()` | 同一 |
+| ステートストレージ | インメモリ Map | インメモリ Map + ファイル永続化 |
+| 再起動リカバリ | 全ステート消失 | ステート保持 (`pending/*.json`) |
+| ネゴシエーション | 3フェーズ (collecting/scoring/confirming) | 同一 |
+| スロットスコアリング | `scoreSlots()` がカバレッジでランク付け | 同一 |
+| 委任 | あり ("让XXX替我去") | 同一 |
+| 30秒デバウンス | `setTimeout` / `clearTimeout` | 同一 |
+| 12時間タイムアウト | `setInterval` ティッカー | 同一 |
+| 2層重複排除 | インフライト Promise + SHA256 冪等性 | 同一 |
+| 名前解決 | 2ステップ (プロバイダー候補 + LLM 選択) | 同一 |
 | インストール | `openclaw plugins install` | `openclaw skills add` |
 | SKILL.md | なし | あり |
 
+## 変更点と共通点
+
 ```mermaid
 graph LR
-    subgraph "変更点"
+    subgraph "Skill v2.0 での変更点"
         D1(モノレポ → 自己完結型)
-        D2(CJS → ESM)
-        D3(インメモリ → ファイル永続化)
-        D4(パッケージ依存 → 依存なし)
+        D2(CommonJS → ESM)
+        D3(インメモリのみ → ファイル永続化)
+        D4(パッケージ依存 → 全てローカル)
+        D5(SKILL.md なし → SKILL.md 同梱)
     end
 
-    subgraph "共通"
-        S1(7 ツール)
+    subgraph "両バージョン共通"
+        S1(ツール7個)
         S2(Feishu + Slack ルーティング)
-        S3(3 フェーズネゴシエーション)
-        S4(30 秒デバウンス)
-        S5(12 時間タイムアウト)
-        S6(2 層重複排除)
+        S3(3フェーズネゴシエーション)
+        S4(30秒デバウンスファイナライズ)
+        S5(12時間タイムアウトティッカー)
+        S6(2層重複排除)
         S7(scoreSlots ランキング)
         S8(委任サポート)
+        S9(2ステップ名前解決)
     end
 
     style D1 fill:#22c55e,color:#fff
     style D2 fill:#22c55e,color:#fff
     style D3 fill:#22c55e,color:#fff
     style D4 fill:#22c55e,color:#fff
+    style D5 fill:#22c55e,color:#fff
     style S1 fill:#6366f1,color:#fff
     style S2 fill:#6366f1,color:#fff
     style S3 fill:#6366f1,color:#fff
@@ -318,6 +501,7 @@ graph LR
     style S6 fill:#6366f1,color:#fff
     style S7 fill:#6366f1,color:#fff
     style S8 fill:#6366f1,color:#fff
+    style S9 fill:#6366f1,color:#fff
 ```
 
 ---

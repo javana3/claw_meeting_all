@@ -12,47 +12,25 @@
 
 ## Overview
 
-ClawMeeting is an AI-powered meeting scheduling system for OpenClaw. It coordinates multi-participant meetings across Feishu and Slack through a 3-phase negotiation protocol with intelligent time-slot scoring, automatic delegation, and debounce-controlled finalization.
+ClawMeeting is an AI-powered meeting scheduling system for OpenClaw. It coordinates multi-participant meetings across Feishu and Slack through natural language, with intelligent time-slot scoring, 3-phase negotiation, automatic delegation, and debounce-controlled finalization.
 
-Two production versions are available:
-- **Plugin (v1.0)** — CommonJS monorepo with `claw-meeting-shared` package dependency. Requires monorepo structure to run.
-- **Skill (v2.0)** — ESM self-contained. Clone and run. File-backed persistence. User-friendly `openclaw skills add` installation.
+This repository contains two implementations:
+- **Plugin (v1.0)** — The original production version. CommonJS monorepo with `claw-meeting-shared` package.
+- **Skill (v2.0)** — A self-contained ESM reimplementation with file-backed persistence.
+
+Both versions support **Feishu + Slack dual-platform routing**, **7 tools**, and **identical business logic**.
 
 ---
 
-## Architecture
+# Part 1: Plugin Version (v1.0)
+
+## Plugin Architecture
+
+The plugin uses a monorepo structure. Core scheduling logic lives in the `shared/` package (`claw-meeting-shared`), while platform-specific providers and entry points are in separate directories.
 
 ```mermaid
 graph TD
-    A(User Message) --> B(OpenClaw Gateway)
-    B --> C(ctx.messageChannel)
-    C -->|feishu| D(Feishu Provider)
-    C -->|slack| E(Slack Provider)
-    D --> F(Calendar API)
-    E --> F
-    F --> G(Scheduler - Slot Finding & Scoring)
-    G --> H(State Machine - 3 Phase Negotiation)
-    H --> I(Meeting Confirmed)
-```
-
----
-
-## Plugin Version (v1.0)
-
-The original production implementation. Uses a monorepo structure with `claw-meeting-shared` as a shared npm package containing core scheduling logic, state machine, and tool definitions. Each platform has its own entry point, plus a `unified/` entry that routes both platforms.
-
-**Key characteristics:**
-- Monorepo: `shared/` (core) + `unified/` (multi-platform) + `feishu/` + `slack/` (single-platform)
-- Depends on `claw-meeting-shared` npm package (the `shared/` directory)
-- 7 tools, Feishu + Slack dual-platform routing via `ctx.messageChannel`
-- In-memory state only — lost on gateway restart
-- CommonJS module system
-
-### Plugin Structure
-
-```mermaid
-graph LR
-    subgraph "Monorepo"
+    subgraph "Monorepo Structure"
         SHARED(shared / claw-meeting-shared)
         UNI(unified / index.ts)
         FEI(feishu / index.ts)
@@ -63,168 +41,181 @@ graph LR
     FEI -->|import| SHARED
     SLK -->|import| SHARED
 
-    SHARED --> CORE(plugin-core.ts - 7 Tools)
-    CORE --> ROUTER(ctx.messageChannel)
-    ROUTER -->|feishu| LP(Lark Provider)
-    ROUTER -->|slack| SP(Slack Provider)
-    CORE --> MEM(In-Memory Map)
-    CORE --> SCH(Scheduler)
+    SHARED --> CORE(plugin-core.ts)
+    CORE --> TOOLS(7 Registered Tools)
+    CORE --> SCHED(scheduler.ts)
+    CORE --> STATE(In-Memory State Map)
+
+    style SHARED fill:#3b82f6,color:#fff
+    style CORE fill:#0ea5e9,color:#fff
+    style STATE fill:#ef4444,color:#fff
 ```
 
----
+### Plugin Entry Points
 
-## Skill Version (v2.0)
+| Entry | Path | Usage |
+|---|---|---|
+| **unified** | `unified/src/index.ts` | Multi-platform (Feishu + Slack). Production default. |
+| **feishu** | `feishu/src/index.ts` | Feishu-only deployment |
+| **slack** | `slack/src/index.ts` | Slack-only deployment |
 
-A self-contained reimplementation using ESM modules. No external package dependencies — all code lives in one directory. State is persisted to `pending/*.json` files, surviving gateway restarts. Includes `SKILL.md` for user-friendly installation via `openclaw skills add`.
+All three import from `claw-meeting-shared` and call `createMeetingPlugin()` with platform-specific config.
 
-**Key characteristics:**
-- Self-contained: clone, `npm install`, `npm run build`, done
-- No monorepo, no `claw-meeting-shared` dependency
-- 7 tools, Feishu + Slack dual-platform routing via `ctx.messageChannel`
-- File-persistent state (JSON in `pending/`) — survives restarts
-- ESM module system (Node16)
-- `SKILL.md` for LLM behavioral instructions
-
-### Skill Structure
+### Plugin Platform Routing
 
 ```mermaid
 graph LR
-    IDX(index.ts) --> CORE(plugin-core.ts - 7 Tools)
-    CORE --> ROUTER(ctx.messageChannel)
-    ROUTER -->|feishu| LP(Lark Provider)
-    ROUTER -->|slack| SP(Slack Provider)
-    CORE --> STORE(MeetingStore)
-    STORE --> MEM(In-Memory Map)
-    STORE --> DISK(pending/*.json)
-    CORE --> SCH(Scheduler)
+    MSG(User Message) --> GW(OpenClaw Gateway)
+    GW --> AGENT(Agent LLM)
+    AGENT -->|tool call| CORE(plugin-core.ts)
+    CORE --> CTX(resolveCtx - ctx.messageChannel)
+    CTX -->|feishu| LP(LarkCalendarProvider)
+    CTX -->|slack| SP(SlackProvider)
+    LP --> LAPI(Feishu Calendar API)
+    LP --> LDIR(Feishu Contact API)
+    LP --> LDM(Feishu IM API)
+    SP --> SDIR(Slack users.list API)
+    SP --> SDM(Slack chat.postMessage)
+
+    style CTX fill:#0ea5e9,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
 ```
 
----
+### Plugin Meeting Flow
 
-## Meeting Lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> Collecting: find_and_book_meeting
-    note right of Collecting: DM each attendee for availability
-
-    Collecting --> FastPath: All accepted
-    Collecting --> Scoring: Some proposed alternatives
-    Collecting --> Cancelled: All declined
-    Collecting --> Expired: 12h timeout
-
-    FastPath --> Committed: commitMeeting
-
-    Scoring --> Confirming: confirm_meeting_slot
-    note right of Scoring: scoreSlots ranks by attendee coverage
-
-    Confirming --> Committed: All confirm
-    Confirming --> Cancelled: Declined
-
-    Committed --> [*]: Calendar event created
-    Cancelled --> [*]: Meeting closed
-    Expired --> [*]: Auto-cancelled
-```
-
----
-
-## Attendee Response Flow
+Step-by-step data flow through the plugin:
 
 ```mermaid
 graph TD
-    A(Attendee receives DM invite) --> B(Replies in DM)
+    A(1. User sends message in Feishu/Slack) --> B(2. Gateway dispatches to Agent LLM)
+    B --> C(3. LLM recognizes intent, calls find_and_book_meeting)
+    C --> D(4. resolveCtx detects platform from ctx.messageChannel)
+    D --> E(5. normalizeAttendees validates IDs per platform rules)
+    E --> F(6. provider.resolveUsers resolves names against directory)
+    F --> G(7. In-flight dedup Layer 1 - Promise sharing)
+    G --> H(8. Post-resolve idempotency Layer 2 - SHA256 60s window)
+    H --> I(9. Create PendingMeeting in memory Map)
+    I --> J(10. provider.sendTextDM sends invite to each attendee)
+    J --> K(11. Return meetingId to LLM, LLM replies to user)
+
+    style D fill:#0ea5e9,color:#fff
+    style G fill:#22c55e,color:#fff
+    style H fill:#22c55e,color:#fff
+    style I fill:#ef4444,color:#fff
+```
+
+### Plugin Attendee Response Flow
+
+```mermaid
+graph TD
+    A(Attendee receives DM invite) --> B(Replies in own DM session)
     B --> C(LLM parses response)
     C -->|accept| D(status = accepted)
     C -->|decline| E(status = declined)
-    C -->|time range| F(status = proposed_alt)
-    C -->|delegate| G(Mark declined + add delegate)
-    C -->|noise| H(Ask for clarification)
+    C -->|time range| F(status = proposed_alt + windows)
+    C -->|delegate| G(Decline + resolve delegate + send new invite)
+    C -->|noise| H(Ask for clarification, do NOT call tool)
 
-    D --> I(All responded?)
-    E --> I
-    F --> I
-    G --> I
+    D --> MERGE(Merge logic - append or replace mode)
+    E --> MERGE
+    F --> MERGE
+    G --> MERGE
 
-    I -->|No| J(Wait for others)
-    I -->|Yes| K(30s debounce)
-    K --> L(finaliseMeeting)
+    MERGE --> CHECK(Check pendingCount)
+    CHECK -->|Others still pending| WAIT(Wait for more responses)
+    CHECK -->|All responded| DEBOUNCE(scheduleFinalize - 30s debounce)
+    DEBOUNCE -->|New response within 30s| RESET(clearTimeout, restart 30s)
+    RESET --> DEBOUNCE
+    DEBOUNCE -->|30s elapsed| FINAL(finaliseMeeting)
+
+    style MERGE fill:#0ea5e9,color:#fff
+    style DEBOUNCE fill:#3b82f6,color:#fff
+    style FINAL fill:#22c55e,color:#fff
 ```
 
----
+### Plugin Finalization State Machine
 
-## Background Processes
+```mermaid
+stateDiagram-v2
+    [*] --> Collecting: find_and_book_meeting creates PendingMeeting
+
+    Collecting --> FastPath: All attendees accepted
+    Collecting --> Scoring: Some proposed alternatives
+    Collecting --> Failed: All declined
+    Collecting --> Expired: 12h timeout (ticker)
+
+    FastPath --> Committed: commitMeeting creates calendar event
+
+    Scoring --> Confirming: Initiator calls confirm_meeting_slot
+    note right of Scoring: scoreSlots ranks slots by attendee coverage
+
+    Confirming --> Committed: Attendees confirm chosen slot
+    Confirming --> Failed: Slot rejected
+
+    Committed --> [*]: DM initiator with event link
+    Failed --> [*]: DM initiator with failure reason
+    Expired --> [*]: DM initiator auto-cancelled
+```
+
+### Plugin Background Ticker
 
 ```mermaid
 graph TD
-    A(Ticker - every 60s) --> B(Check each open meeting)
-    B --> C(now >= expiresAt?)
-    C -->|Yes 12h passed| D(Close + DM initiator)
-    C -->|No| E(Status update due?)
-    E -->|Yes 1h since last| F(DM roll-call to initiator)
-    E -->|No| G(Skip)
+    TICK(setInterval every 60s) --> GC(gcPending - clean up old meetings)
+    GC --> LOOP(For each open PendingMeeting)
+    LOOP --> EXP(Check: now >= expiresAt 12h?)
+    EXP -->|Yes| CLOSE(Close meeting + DM initiator auto-cancelled)
+    EXP -->|No| STATUS(Check: 1h since last status update?)
+    STATUS -->|Yes| DM(DM initiator roll-call: X/Y responded)
+    STATUS -->|No| NEXT(Next meeting)
+
+    style CLOSE fill:#ef4444,color:#fff
+    style DM fill:#3b82f6,color:#fff
 ```
 
----
+### Plugin State Management
 
-## Tools
-
-| # | Tool | Description |
-|---|------|-------------|
-| 1 | `find_and_book_meeting` | Create pending meeting, resolve attendee names, send DM invites |
-| 2 | `list_my_pending_invitations` | List pending invitations for the current sender |
-| 3 | `record_attendee_response` | Record accept / decline / propose alternative / delegate |
-| 4 | `confirm_meeting_slot` | Initiator picks a time slot after scoring results |
-| 5 | `list_upcoming_meetings` | List upcoming calendar events |
-| 6 | `cancel_meeting` | Cancel a meeting by event ID |
-| 7 | `debug_list_directory` | List tenant directory users (diagnostic) |
-
----
-
-## File Structure
+All state is in-memory. Gateway restart = all pending meetings lost.
 
 ```
-plugin_version/                      Monorepo (requires claw-meeting-shared)
-├── shared/                          Core logic package
-│   └── src/
-│       ├── plugin-core.ts           7 tools, routing, state machine (1131 lines)
-│       ├── scheduler.ts             Slot finding + scoring
-│       ├── load-env.ts              .env loader
-│       └── providers/types.ts       CalendarProvider interface
+pendingMeetings: Map<string, PendingMeeting>     ← meetings in progress
+recentFindAndBook: Map<string, {meetingId, at}>   ← idempotency (60s window)
+inflightFindAndBook: Map<string, Promise>         ← concurrent dedup
+```
+
+### Plugin File Structure
+
+```
+plugin_version/
+├── shared/                          claw-meeting-shared package
+│   ├── src/
+│   │   ├── index.ts                 Package exports
+│   │   ├── plugin-core.ts           Core logic: 7 tools, routing, state machine (1131 lines)
+│   │   ├── scheduler.ts             Slot finding, scoring, intersection (257 lines)
+│   │   ├── load-env.ts              .env loader
+│   │   └── providers/types.ts       CalendarProvider interface
+│   ├── package.json                 claw-meeting-shared
+│   └── tsconfig.json
 ├── unified/                         Multi-platform entry (Feishu + Slack)
-│   └── src/
-│       ├── index.ts                 Platform config
-│       └── providers/
-│           ├── lark.ts              Feishu backend
-│           └── slack.ts             Slack backend
+│   ├── src/
+│   │   ├── index.ts                 Platform config + createMeetingPlugin()
+│   │   └── providers/
+│   │       ├── lark.ts              Feishu backend (1020 lines)
+│   │       └── slack.ts             Slack backend (346 lines)
+│   ├── package.json                 Depends on claw-meeting-shared
+│   └── tsconfig.json
 ├── feishu/                          Feishu-only entry
 │   └── src/
 │       ├── index.ts                 Single-platform config
-│       └── providers/lark.ts        Feishu backend
+│       └── providers/lark.ts
 └── slack/                           Slack-only entry
     └── src/
         ├── index.ts                 Single-platform config
-        └── providers/slack.ts       Slack backend
-
-skill_version/                       Self-contained (clone and run)
-├── SKILL.md                         LLM instructions
-├── src/
-│   ├── index.ts                     Entry point (platform config)
-│   ├── plugin-core.ts               7 tools, routing, state machine (1176 lines)
-│   ├── meeting-store.ts             Persistent state layer (222 lines)
-│   ├── scheduler.ts                 Slot finding + scoring
-│   ├── load-env.ts                  .env loader (ESM)
-│   └── providers/
-│       ├── types.ts                 CalendarProvider interface
-│       ├── lark.ts                  Feishu backend
-│       └── slack.ts                 Slack backend
-└── pending/                         Runtime meeting state (JSON files)
+        └── providers/slack.ts
 ```
 
----
-
-## Quick Start
-
-### Plugin Version (v1.0)
+### Plugin Quick Start
 
 ```bash
 cd plugin_version/shared && npm install && npm run build
@@ -233,7 +224,180 @@ openclaw plugins install -l .
 openclaw gateway --force
 ```
 
-### Skill Version (v2.0)
+---
+
+# Part 2: Skill Version (v2.0)
+
+## Skill Architecture
+
+The skill version is a self-contained reimplementation. No monorepo, no external package dependency. All code in one directory. Clone, build, run.
+
+```mermaid
+graph TD
+    IDX(index.ts - Entry) --> CORE(plugin-core.ts - 7 Tools)
+    CORE --> ROUTER(resolveCtx - ctx.messageChannel)
+    ROUTER -->|feishu| LP(LarkCalendarProvider - lark.ts)
+    ROUTER -->|slack| SP(SlackProvider - slack.ts)
+    CORE --> STORE(MeetingStore - meeting-store.ts)
+    STORE --> MEM(In-Memory Map)
+    STORE --> DISK(pending/*.json files)
+    CORE --> SCHED(scheduler.ts)
+    IDX --> SKILL(SKILL.md - LLM instructions)
+
+    style ROUTER fill:#0ea5e9,color:#fff
+    style STORE fill:#3b82f6,color:#fff
+    style DISK fill:#22c55e,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
+```
+
+### What Changed from Plugin
+
+| Aspect | Plugin (v1.0) | Skill (v2.0) |
+|---|---|---|
+| Code structure | Monorepo (shared + unified + feishu + slack) | Single directory, self-contained |
+| Module system | CommonJS | ESM (Node16) |
+| External deps | `claw-meeting-shared` package | None (all local imports with `.js` suffix) |
+| State layer | In-memory Map only | MeetingStore: Map + file persistence |
+| `__dirname` | Native CJS global | `fileURLToPath(import.meta.url)` |
+| Export | `module.exports = plugin` | `export default plugin; export { plugin }` |
+| SKILL.md | None | Included for `openclaw skills add` |
+
+### Skill Platform Routing
+
+Identical to Plugin. `resolveCtx()` reads `ctx.messageChannel` and routes to the correct provider:
+
+```mermaid
+graph LR
+    MSG(User Message) --> GW(OpenClaw Gateway)
+    GW --> AGENT(Agent LLM)
+    AGENT -->|tool call| CORE(plugin-core.ts)
+    CORE --> CTX(resolveCtx - ctx.messageChannel)
+    CTX -->|feishu| LP(LarkCalendarProvider)
+    CTX -->|slack| SP(SlackProvider)
+    LP --> LAPI(Feishu API)
+    SP --> SAPI(Slack API)
+
+    style CTX fill:#0ea5e9,color:#fff
+    style LP fill:#22c55e,color:#fff
+    style SP fill:#6366f1,color:#fff
+```
+
+### Skill Meeting Flow
+
+Same business logic as Plugin, with persistence added:
+
+```mermaid
+graph TD
+    A(1. User sends message) --> B(2. LLM calls find_and_book_meeting)
+    B --> C(3. resolveCtx detects platform)
+    C --> D(4. Resolve attendee names via provider)
+    D --> E(5. Dedup check Layer 1 + Layer 2)
+    E --> F(6. Create PendingMeeting)
+    F --> G(7. store.save - persist to pending/mtg_xxx.json)
+    G --> H(8. Send DM invites via provider)
+    H --> I(9. Return to LLM)
+
+    I --> J(10. Attendees reply in DM)
+    J --> K(11. record_attendee_response + store.save)
+    K --> L(12. All responded - scheduleFinalize 30s)
+    L --> M(13. finaliseMeeting - state machine)
+    M --> N(14. commitMeeting + store.save)
+    N --> O(15. Calendar event created)
+
+    style G fill:#22c55e,color:#fff
+    style K fill:#22c55e,color:#fff
+    style N fill:#22c55e,color:#fff
+```
+
+Green nodes = `store.save()` persistence points. If gateway restarts at any point, state is recovered from `pending/*.json`.
+
+### Skill State Management
+
+Hybrid: in-memory for speed, file for durability.
+
+```mermaid
+graph LR
+    subgraph "MeetingStore"
+        MAP(In-Memory Map - fast access)
+        FS(pending/mtg_xxx.json - durability)
+    end
+
+    WRITE(State mutation) --> MAP
+    WRITE --> FS
+    RESTART(Gateway restart) --> HYDRATE(store.hydrate)
+    HYDRATE -->|scan pending dir| MAP
+
+    style MAP fill:#3b82f6,color:#fff
+    style FS fill:#22c55e,color:#fff
+    style HYDRATE fill:#0ea5e9,color:#fff
+```
+
+### Skill Finalization State Machine
+
+Identical to Plugin:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Collecting: find_and_book_meeting
+
+    Collecting --> FastPath: All accepted
+    Collecting --> Scoring: Some proposed_alt
+    Collecting --> Failed: All declined
+    Collecting --> Expired: 12h timeout
+
+    FastPath --> Committed: commitMeeting + store.save
+
+    Scoring --> Confirming: confirm_meeting_slot
+    note right of Scoring: scoreSlots ranks by coverage + store.save
+
+    Confirming --> Committed: All confirm + store.save
+
+    Committed --> [*]: Calendar event created
+    Failed --> [*]: Closed + store.save
+    Expired --> [*]: Auto-cancelled + store.save
+```
+
+### Skill Background Ticker
+
+Identical to Plugin, with `store.save()` on every state change:
+
+```mermaid
+graph TD
+    TICK(setInterval every 60s) --> GC(gcPending + gcIdempotency)
+    GC --> LOOP(For each open meeting)
+    LOOP --> EXP(12h expired?)
+    EXP -->|Yes| CLOSE(Close + DM + store.save)
+    EXP -->|No| STATUS(1h since last update?)
+    STATUS -->|Yes| DM(DM roll-call + store.save)
+    STATUS -->|No| NEXT(Next)
+
+    style CLOSE fill:#ef4444,color:#fff
+    style DM fill:#3b82f6,color:#fff
+```
+
+### Skill File Structure
+
+```
+skill_version/
+├── SKILL.md                         LLM behavioral instructions
+├── src/
+│   ├── index.ts                     Entry point - platform config (70 lines)
+│   ├── plugin-core.ts               Core logic: 7 tools, routing, state machine (1176 lines)
+│   ├── meeting-store.ts             MeetingStore: Map + file persistence (222 lines)
+│   ├── scheduler.ts                 Slot finding, scoring, intersection (243 lines)
+│   ├── load-env.ts                  .env loader (ESM compatible)
+│   └── providers/
+│       ├── types.ts                 CalendarProvider interface
+│       ├── lark.ts                  Feishu backend (770 lines)
+│       └── slack.ts                 Slack backend (345 lines)
+├── pending/                         Runtime state (JSON files, gitignored)
+├── openclaw.plugin.json             Plugin + Skill manifest
+├── package.json                     ESM, @slack/web-api + googleapis + luxon
+└── .gitignore                       Excludes .env, node_modules, dist, pending
+```
+
+### Skill Quick Start
 
 ```bash
 cd skill_version
@@ -245,9 +409,21 @@ openclaw gateway --force
 
 ---
 
-## Configuration
+# Part 3: Version Comparison (Diff)
 
-Both versions require platform credentials in `.env`:
+## 7 Tools (Shared by Both Versions)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 1 | `find_and_book_meeting` | Create pending meeting, resolve attendee names, send DM invites |
+| 2 | `list_my_pending_invitations` | List pending invitations for the current sender |
+| 3 | `record_attendee_response` | Record accept / decline / propose alternative / delegate |
+| 4 | `confirm_meeting_slot` | Initiator picks a time slot after scoring results |
+| 5 | `list_upcoming_meetings` | List upcoming calendar events |
+| 6 | `cancel_meeting` | Cancel a meeting by event ID |
+| 7 | `debug_list_directory` | List tenant directory users (diagnostic) |
+
+## Configuration (Shared by Both Versions)
 
 ```env
 # Feishu / Lark
@@ -265,51 +441,58 @@ LUNCH_BREAK=12:00-13:30
 BUFFER_MINUTES=15
 ```
 
----
-
-## Version Comparison
+## Full Comparison Table
 
 | Dimension | Plugin (v1.0) | Skill (v2.0) |
 |---|---|---|
 | Architecture | Monorepo (shared + unified + feishu + slack) | Self-contained (single directory) |
 | Module System | CommonJS | ESM (Node16) |
 | Dependencies | `claw-meeting-shared` package | None (all local) |
-| Portability | Requires monorepo structure | Clone and run |
-| Tools | 7 | 7 |
-| Platforms | Feishu + Slack | Feishu + Slack |
-| Platform Routing | `ctx.messageChannel` | `ctx.messageChannel` |
-| State Storage | In-memory Map | In-memory + file persistence |
-| Restart Recovery | State lost | State preserved (pending/*.json) |
-| Negotiation | 3-phase (collecting/scoring/confirming) | 3-phase (identical) |
-| Scoring | Yes (scoreSlots) | Yes (identical) |
-| Delegation | Yes | Yes |
+| Portability | Requires monorepo + package link | Clone and run |
+| Tools | 7 | 7 (identical) |
+| Platforms | Feishu + Slack | Feishu + Slack (identical) |
+| Platform Routing | `ctx.messageChannel` via `resolveCtx()` | Identical |
+| State Storage | In-memory Map | In-memory Map + file persistence |
+| Restart Recovery | All state lost | State preserved (`pending/*.json`) |
+| Negotiation | 3-phase (collecting/scoring/confirming) | Identical |
+| Slot Scoring | `scoreSlots()` ranks by coverage | Identical |
+| Delegation | Yes ("让XXX替我去") | Identical |
+| 30s Debounce | `setTimeout` / `clearTimeout` | Identical |
+| 12h Timeout | `setInterval` ticker | Identical |
+| Two-layer Dedup | In-flight Promise + SHA256 idempotency | Identical |
+| Name Resolution | Two-step (provider candidates + LLM picks) | Identical |
 | Installation | `openclaw plugins install` | `openclaw skills add` |
 | SKILL.md | No | Yes |
 
+## What Changed vs What Stayed
+
 ```mermaid
 graph LR
-    subgraph "Differences"
+    subgraph "Changed in Skill v2.0"
         D1(Monorepo → Self-contained)
-        D2(CJS → ESM)
-        D3(In-memory → File persistence)
-        D4(Package dep → No deps)
+        D2(CommonJS → ESM)
+        D3(In-memory only → File persistence)
+        D4(Package dependency → All local)
+        D5(No SKILL.md → SKILL.md included)
     end
 
-    subgraph "Identical"
+    subgraph "Identical in Both Versions"
         S1(7 Tools)
         S2(Feishu + Slack routing)
         S3(3-phase negotiation)
-        S4(30s debounce)
-        S5(12h timeout)
+        S4(30s debounce finalization)
+        S5(12h timeout ticker)
         S6(Two-layer dedup)
         S7(scoreSlots ranking)
         S8(Delegation support)
+        S9(Two-step name resolution)
     end
 
     style D1 fill:#22c55e,color:#fff
     style D2 fill:#22c55e,color:#fff
     style D3 fill:#22c55e,color:#fff
     style D4 fill:#22c55e,color:#fff
+    style D5 fill:#22c55e,color:#fff
     style S1 fill:#6366f1,color:#fff
     style S2 fill:#6366f1,color:#fff
     style S3 fill:#6366f1,color:#fff
@@ -318,6 +501,7 @@ graph LR
     style S6 fill:#6366f1,color:#fff
     style S7 fill:#6366f1,color:#fff
     style S8 fill:#6366f1,color:#fff
+    style S9 fill:#6366f1,color:#fff
 ```
 
 ---
