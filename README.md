@@ -188,6 +188,15 @@ stateDiagram-v2
     Committed --> [*]: DM initiator with event link
     Failed --> [*]: DM initiator with failure reason
     Expired --> [*]: DM initiator auto-cancelled
+
+    style [*] fill:#fcd34d,stroke:#92400e,color:#000
+    style Collecting fill:#fde68a,stroke:#d97706,color:#000
+    style FastPath fill:#fef3c7,stroke:#b45309,color:#000
+    style Scoring fill:#fef3c7,stroke:#b45309,color:#000
+    style Confirming fill:#fef3c7,stroke:#b45309,color:#000
+    style Committed fill:#fde68a,stroke:#d97706,color:#000
+    style Failed fill:#fde68a,stroke:#d97706,color:#000
+    style Expired fill:#fde68a,stroke:#d97706,color:#000
 ```
 
 ### Plugin Background Ticker
@@ -417,6 +426,15 @@ stateDiagram-v2
     Committed --> [*]: Calendar event created
     Failed --> [*]: Closed + store.save
     Expired --> [*]: Auto-cancelled + store.save
+
+    style [*] fill:#fcd34d,stroke:#92400e,color:#000
+    style Collecting fill:#fde68a,stroke:#d97706,color:#000
+    style FastPath fill:#fef3c7,stroke:#b45309,color:#000
+    style Scoring fill:#fef3c7,stroke:#b45309,color:#000
+    style Confirming fill:#fef3c7,stroke:#b45309,color:#000
+    style Committed fill:#fde68a,stroke:#d97706,color:#000
+    style Failed fill:#fde68a,stroke:#d97706,color:#000
+    style Expired fill:#fde68a,stroke:#d97706,color:#000
 ```
 
 ### Skill Background Ticker
