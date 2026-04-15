@@ -158,13 +158,13 @@ stateDiagram-v2
     已过期 --> [*]: 私信发起人自动取消
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 收集中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 快速路径 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 评分中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 确认中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 已提交 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 失败 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 已过期 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 插件后台定时器
@@ -367,13 +367,13 @@ stateDiagram-v2
     已过期 --> [*]: 自动取消 + store.save
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 收集中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 快速路径 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 评分中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 确认中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 已提交 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 失败 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style 已过期 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版后台定时器
