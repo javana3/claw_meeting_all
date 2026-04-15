@@ -46,9 +46,14 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     CORE --> STATE(In-Memory State Map)
 
-    style SHARED fill:#3b82f6,color:#fff
-    style CORE fill:#0ea5e9,color:#fff
-    style STATE fill:#ef4444,color:#fff
+    style SHARED fill:#fffde7,color:#000
+    style UNI fill:#fffde7,color:#000
+    style FEI fill:#fffde7,color:#000
+    style SLK fill:#fffde7,color:#000
+    style CORE fill:#fffde7,color:#000
+    style STATE fill:#fffde7,color:#000
+    style TOOLS fill:#fffde7,color:#000
+    style SCHED fill:#fffde7,color:#000
 ```
 
 ### Plugin Entry Points
@@ -77,9 +82,18 @@ graph LR
     SP --> SDIR(Slack users.list API)
     SP --> SDM(Slack chat.postMessage)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#fffde7,color:#000
+    style LP fill:#fffde7,color:#000
+    style SP fill:#fffde7,color:#000
+    style MSG fill:#fffde7,color:#000
+    style GW fill:#fffde7,color:#000
+    style AGENT fill:#fffde7,color:#000
+    style CORE fill:#fffde7,color:#000
+    style LAPI fill:#fffde7,color:#000
+    style LDIR fill:#fffde7,color:#000
+    style LDM fill:#fffde7,color:#000
+    style SDIR fill:#fffde7,color:#000
+    style SDM fill:#fffde7,color:#000
 ```
 
 ### Plugin Meeting Flow
@@ -99,10 +113,17 @@ graph TD
     I --> J(10. provider.sendTextDM sends invite to each attendee)
     J --> K(11. Return meetingId to LLM, LLM replies to user)
 
-    style D fill:#0ea5e9,color:#fff
-    style G fill:#22c55e,color:#fff
-    style H fill:#22c55e,color:#fff
-    style I fill:#ef4444,color:#fff
+    style D fill:#fffde7,color:#000
+    style G fill:#fffde7,color:#000
+    style H fill:#fffde7,color:#000
+    style I fill:#fffde7,color:#000
+    style A fill:#fffde7,color:#000
+    style B fill:#fffde7,color:#000
+    style C fill:#fffde7,color:#000
+    style E fill:#fffde7,color:#000
+    style F fill:#fffde7,color:#000
+    style J fill:#fffde7,color:#000
+    style K fill:#fffde7,color:#000
 ```
 
 ### Plugin Attendee Response Flow
@@ -129,9 +150,20 @@ graph TD
     RESET --> DEBOUNCE
     DEBOUNCE -->|30s elapsed| FINAL(finaliseMeeting)
 
-    style MERGE fill:#0ea5e9,color:#fff
-    style DEBOUNCE fill:#3b82f6,color:#fff
-    style FINAL fill:#22c55e,color:#fff
+    style MERGE fill:#fffde7,color:#000
+    style DEBOUNCE fill:#fffde7,color:#000
+    style FINAL fill:#fffde7,color:#000
+    style A fill:#fffde7,color:#000
+    style B fill:#fffde7,color:#000
+    style C fill:#fffde7,color:#000
+    style D fill:#fffde7,color:#000
+    style E fill:#fffde7,color:#000
+    style F fill:#fffde7,color:#000
+    style G fill:#fffde7,color:#000
+    style H fill:#fffde7,color:#000
+    style CHECK fill:#fffde7,color:#000
+    style WAIT fill:#fffde7,color:#000
+    style RESET fill:#fffde7,color:#000
 ```
 
 ### Plugin Finalization State Machine
@@ -170,8 +202,14 @@ graph TD
     STATUS -->|Yes| DM(DM initiator roll-call: X/Y responded)
     STATUS -->|No| NEXT(Next meeting)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#fffde7,color:#000
+    style DM fill:#fffde7,color:#000
+    style TICK fill:#fffde7,color:#000
+    style GC fill:#fffde7,color:#000
+    style LOOP fill:#fffde7,color:#000
+    style EXP fill:#fffde7,color:#000
+    style STATUS fill:#fffde7,color:#000
+    style NEXT fill:#fffde7,color:#000
 ```
 
 ### Plugin State Management
@@ -244,11 +282,16 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     IDX --> SKILL(SKILL.md - LLM instructions)
 
-    style ROUTER fill:#0ea5e9,color:#fff
-    style STORE fill:#3b82f6,color:#fff
-    style DISK fill:#22c55e,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style ROUTER fill:#fffde7,color:#000
+    style STORE fill:#fffde7,color:#000
+    style DISK fill:#fffde7,color:#000
+    style LP fill:#fffde7,color:#000
+    style SP fill:#fffde7,color:#000
+    style IDX fill:#fffde7,color:#000
+    style CORE fill:#fffde7,color:#000
+    style MEM fill:#fffde7,color:#000
+    style SCHED fill:#fffde7,color:#000
+    style SKILL fill:#fffde7,color:#000
 ```
 
 ### What Changed from Plugin
@@ -278,9 +321,15 @@ graph LR
     LP --> LAPI(Feishu API)
     SP --> SAPI(Slack API)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#fffde7,color:#000
+    style LP fill:#fffde7,color:#000
+    style SP fill:#fffde7,color:#000
+    style MSG fill:#fffde7,color:#000
+    style GW fill:#fffde7,color:#000
+    style AGENT fill:#fffde7,color:#000
+    style CORE fill:#fffde7,color:#000
+    style LAPI fill:#fffde7,color:#000
+    style SAPI fill:#fffde7,color:#000
 ```
 
 ### Skill Meeting Flow
@@ -305,12 +354,22 @@ graph TD
     M --> N(14. commitMeeting + store.save)
     N --> O(15. Calendar event created)
 
-    style G fill:#22c55e,color:#fff
-    style K fill:#22c55e,color:#fff
-    style N fill:#22c55e,color:#fff
+style G fill:#fffde7,color:#000
+    style K fill:#fffde7,color:#000
+    style N fill:#fffde7,color:#000
+    style A fill:#fffde7,color:#000
+    style B fill:#fffde7,color:#000
+    style C fill:#fffde7,color:#000
+    style D fill:#fffde7,color:#000
+    style E fill:#fffde7,color:#000
+    style F fill:#fffde7,color:#000
+    style H fill:#fffde7,color:#000
+    style I fill:#fffde7,color:#000
+    style J fill:#fffde7,color:#000
+    style L fill:#fffde7,color:#000
+    style M fill:#fffde7,color:#000
+    style O fill:#fffde7,color:#000
 ```
-
-Green nodes = `store.save()` persistence points. If gateway restarts at any point, state is recovered from `pending/*.json`.
 
 ### Skill State Management
 
@@ -328,9 +387,11 @@ graph LR
     RESTART(Gateway restart) --> HYDRATE(store.hydrate)
     HYDRATE -->|scan pending dir| MAP
 
-    style MAP fill:#3b82f6,color:#fff
-    style FS fill:#22c55e,color:#fff
-    style HYDRATE fill:#0ea5e9,color:#fff
+    style MAP fill:#fffde7,color:#000
+    style FS fill:#fffde7,color:#000
+    style HYDRATE fill:#fffde7,color:#000
+    style WRITE fill:#fffde7,color:#000
+    style RESTART fill:#fffde7,color:#000
 ```
 
 ### Skill Finalization State Machine
@@ -372,8 +433,14 @@ graph TD
     STATUS -->|Yes| DM(DM roll-call + store.save)
     STATUS -->|No| NEXT(Next)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#fffde7,color:#000
+    style DM fill:#fffde7,color:#000
+    style TICK fill:#fffde7,color:#000
+    style GC fill:#fffde7,color:#000
+    style LOOP fill:#fffde7,color:#000
+    style EXP fill:#fffde7,color:#000
+    style STATUS fill:#fffde7,color:#000
+    style NEXT fill:#fffde7,color:#000
 ```
 
 ### Skill File Structure
@@ -488,20 +555,20 @@ graph LR
         S9(Two-step name resolution)
     end
 
-    style D1 fill:#22c55e,color:#fff
-    style D2 fill:#22c55e,color:#fff
-    style D3 fill:#22c55e,color:#fff
-    style D4 fill:#22c55e,color:#fff
-    style D5 fill:#22c55e,color:#fff
-    style S1 fill:#6366f1,color:#fff
-    style S2 fill:#6366f1,color:#fff
-    style S3 fill:#6366f1,color:#fff
-    style S4 fill:#6366f1,color:#fff
-    style S5 fill:#6366f1,color:#fff
-    style S6 fill:#6366f1,color:#fff
-    style S7 fill:#6366f1,color:#fff
-    style S8 fill:#6366f1,color:#fff
-    style S9 fill:#6366f1,color:#fff
+    style D1 fill:#fffde7,color:#000
+    style D2 fill:#fffde7,color:#000
+    style D3 fill:#fffde7,color:#000
+    style D4 fill:#fffde7,color:#000
+    style D5 fill:#fffde7,color:#000
+    style S1 fill:#fffde7,color:#000
+    style S2 fill:#fffde7,color:#000
+    style S3 fill:#fffde7,color:#000
+    style S4 fill:#fffde7,color:#000
+    style S5 fill:#fffde7,color:#000
+    style S6 fill:#fffde7,color:#000
+    style S7 fill:#fffde7,color:#000
+    style S8 fill:#fffde7,color:#000
+    style S9 fill:#fffde7,color:#000
 ```
 
 ---
