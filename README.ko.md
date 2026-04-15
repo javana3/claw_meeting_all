@@ -158,13 +158,13 @@ stateDiagram-v2
     Expired --> [*]: 주최자에게 자동 취소 DM 전송
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style 수집중 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 전체수락 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 일부제안 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 확인중 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 전체거절 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 자동취소 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 백그라운드 티커
@@ -367,13 +367,13 @@ stateDiagram-v2
     Expired --> [*]: 자동 취소 + store.save
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style 수집중 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 전체수락 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 일부제안 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 확인중 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 전체거절 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 자동취소 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 스킬 백그라운드 티커

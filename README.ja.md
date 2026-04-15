@@ -158,13 +158,13 @@ stateDiagram-v2
     Expired --> [*]: 発起者に自動キャンセルを DM
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style 収集中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 全承諾 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 一部代替案提示 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 確認中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 全員辞退 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 自動キャンセル fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin バックグラウンドティッカー
@@ -367,13 +367,13 @@ stateDiagram-v2
     Expired --> [*]: 自動キャンセル + store.save
 
     style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
-    style 収集中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 全承諾 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 一部代替案提示 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 確認中 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 全員辞退 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
-    style 自動キャンセル fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill バックグラウンドティッカー
