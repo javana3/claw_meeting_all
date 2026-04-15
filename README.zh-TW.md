@@ -46,9 +46,9 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     CORE --> STATE(記憶體內狀態映射)
 
-    style SHARED fill:#3b82f6,color:#fff
-    style CORE fill:#0ea5e9,color:#fff
-    style STATE fill:#ef4444,color:#fff
+    style SHARED fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛進入點
@@ -77,9 +77,9 @@ graph LR
     SP --> SDIR(Slack users.list API)
     SP --> SDM(Slack chat.postMessage)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛會議流程
@@ -99,10 +99,10 @@ graph TD
     I --> J(10. provider.sendTextDM 向每位參與者發送邀請)
     J --> K(11. 將 meetingId 回傳給 LLM，LLM 回覆使用者)
 
-    style D fill:#0ea5e9,color:#fff
-    style G fill:#22c55e,color:#fff
-    style H fill:#22c55e,color:#fff
-    style I fill:#ef4444,color:#fff
+    style D fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style H fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style I fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛參與者回應流程
@@ -129,9 +129,9 @@ graph TD
     RESET --> DEBOUNCE
     DEBOUNCE -->|30秒已過| FINAL(finaliseMeeting)
 
-    style MERGE fill:#0ea5e9,color:#fff
-    style DEBOUNCE fill:#3b82f6,color:#fff
-    style FINAL fill:#22c55e,color:#fff
+    style MERGE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DEBOUNCE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FINAL fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛最終確認狀態機
@@ -170,8 +170,8 @@ graph TD
     STATUS -->|是| DM(私訊發起人點名: X/Y 已回應)
     STATUS -->|否| NEXT(下一個會議)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛狀態管理
@@ -244,11 +244,11 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     IDX --> SKILL(SKILL.md - LLM 指令)
 
-    style ROUTER fill:#0ea5e9,color:#fff
-    style STORE fill:#3b82f6,color:#fff
-    style DISK fill:#22c55e,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style ROUTER fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DISK fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 與外掛版的差異
@@ -278,9 +278,9 @@ graph LR
     LP --> LAPI(飛書 API)
     SP --> SAPI(Slack API)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版會議流程
@@ -305,9 +305,9 @@ graph TD
     M --> N(14. commitMeeting + store.save)
     N --> O(15. 日曆事件已建立)
 
-    style G fill:#22c55e,color:#fff
-    style K fill:#22c55e,color:#fff
-    style N fill:#22c55e,color:#fff
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style K fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style N fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 綠色節點 = `store.save()` 持久化點。若閘道器在任何時刻重啟，狀態將從 `pending/*.json` 恢復。
@@ -328,9 +328,9 @@ graph LR
     RESTART(閘道器重啟) --> HYDRATE(store.hydrate)
     HYDRATE -->|掃描 pending 目錄| MAP
 
-    style MAP fill:#3b82f6,color:#fff
-    style FS fill:#22c55e,color:#fff
-    style HYDRATE fill:#0ea5e9,color:#fff
+    style MAP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FS fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style HYDRATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版最終確認狀態機
@@ -372,8 +372,8 @@ graph TD
     STATUS -->|是| DM(私訊點名 + store.save)
     STATUS -->|否| NEXT(下一個)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版檔案結構
@@ -488,20 +488,20 @@ graph LR
         S9(兩步驟姓名解析)
     end
 
-    style D1 fill:#22c55e,color:#fff
-    style D2 fill:#22c55e,color:#fff
-    style D3 fill:#22c55e,color:#fff
-    style D4 fill:#22c55e,color:#fff
-    style D5 fill:#22c55e,color:#fff
-    style S1 fill:#6366f1,color:#fff
-    style S2 fill:#6366f1,color:#fff
-    style S3 fill:#6366f1,color:#fff
-    style S4 fill:#6366f1,color:#fff
-    style S5 fill:#6366f1,color:#fff
-    style S6 fill:#6366f1,color:#fff
-    style S7 fill:#6366f1,color:#fff
-    style S8 fill:#6366f1,color:#fff
-    style S9 fill:#6366f1,color:#fff
+    style D1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D2 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D3 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D4 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D5 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S2 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S3 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S4 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S5 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S6 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S7 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S8 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S9 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ---

@@ -46,9 +46,9 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     CORE --> STATE(인메모리 State Map)
 
-    style SHARED fill:#3b82f6,color:#fff
-    style CORE fill:#0ea5e9,color:#fff
-    style STATE fill:#ef4444,color:#fff
+    style SHARED fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 엔트리 포인트
@@ -77,9 +77,9 @@ graph LR
     SP --> SDIR(Slack users.list API)
     SP --> SDM(Slack chat.postMessage)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 회의 흐름
@@ -99,10 +99,10 @@ graph TD
     I --> J(10. provider.sendTextDM으로 각 참석자에게 초대 전송)
     J --> K(11. meetingId를 LLM에 반환, LLM이 사용자에게 응답)
 
-    style D fill:#0ea5e9,color:#fff
-    style G fill:#22c55e,color:#fff
-    style H fill:#22c55e,color:#fff
-    style I fill:#ef4444,color:#fff
+    style D fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style H fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style I fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 참석자 응답 흐름
@@ -129,9 +129,9 @@ graph TD
     RESET --> DEBOUNCE
     DEBOUNCE -->|30초 경과| FINAL(finaliseMeeting)
 
-    style MERGE fill:#0ea5e9,color:#fff
-    style DEBOUNCE fill:#3b82f6,color:#fff
-    style FINAL fill:#22c55e,color:#fff
+    style MERGE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DEBOUNCE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FINAL fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 확정 상태 머신
@@ -170,8 +170,8 @@ graph TD
     STATUS -->|예| DM(주최자에게 현황 보고: X/Y명 응답 완료)
     STATUS -->|아니오| NEXT(다음 회의)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 상태 관리
@@ -244,11 +244,11 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     IDX --> SKILL(SKILL.md - LLM 지시사항)
 
-    style ROUTER fill:#0ea5e9,color:#fff
-    style STORE fill:#3b82f6,color:#fff
-    style DISK fill:#22c55e,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style ROUTER fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DISK fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 대비 변경 사항
@@ -278,9 +278,9 @@ graph LR
     LP --> LAPI(Feishu API)
     SP --> SAPI(Slack API)
 
-    style CTX fill:#0ea5e9,color:#fff
-    style LP fill:#22c55e,color:#fff
-    style SP fill:#6366f1,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 스킬 회의 흐름
@@ -305,9 +305,9 @@ graph TD
     M --> N(14. commitMeeting + store.save)
     N --> O(15. 캘린더 이벤트 생성)
 
-    style G fill:#22c55e,color:#fff
-    style K fill:#22c55e,color:#fff
-    style N fill:#22c55e,color:#fff
+    style G fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style K fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style N fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 초록색 노드 = `store.save()` 영속화 지점. 게이트웨이가 어느 시점에서든 재시작되면 `pending/*.json`에서 상태가 복구됩니다.
@@ -328,9 +328,9 @@ graph LR
     RESTART(게이트웨이 재시작) --> HYDRATE(store.hydrate)
     HYDRATE -->|pending 디렉토리 스캔| MAP
 
-    style MAP fill:#3b82f6,color:#fff
-    style FS fill:#22c55e,color:#fff
-    style HYDRATE fill:#0ea5e9,color:#fff
+    style MAP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FS fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style HYDRATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 스킬 확정 상태 머신
@@ -372,8 +372,8 @@ graph TD
     STATUS -->|예| DM(현황 보고 DM + store.save)
     STATUS -->|아니오| NEXT(다음)
 
-    style CLOSE fill:#ef4444,color:#fff
-    style DM fill:#3b82f6,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 스킬 파일 구조
@@ -488,20 +488,20 @@ graph LR
         S9(2단계 이름 조회)
     end
 
-    style D1 fill:#22c55e,color:#fff
-    style D2 fill:#22c55e,color:#fff
-    style D3 fill:#22c55e,color:#fff
-    style D4 fill:#22c55e,color:#fff
-    style D5 fill:#22c55e,color:#fff
-    style S1 fill:#6366f1,color:#fff
-    style S2 fill:#6366f1,color:#fff
-    style S3 fill:#6366f1,color:#fff
-    style S4 fill:#6366f1,color:#fff
-    style S5 fill:#6366f1,color:#fff
-    style S6 fill:#6366f1,color:#fff
-    style S7 fill:#6366f1,color:#fff
-    style S8 fill:#6366f1,color:#fff
-    style S9 fill:#6366f1,color:#fff
+    style D1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D2 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D3 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D4 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D5 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S1 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S2 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S3 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S4 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S5 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S6 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S7 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S8 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style S9 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ---
