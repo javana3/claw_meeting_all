@@ -46,14 +46,14 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     CORE --> STATE(In-Memory State Map)
 
-    style SHARED fill:#fffde7,color:#000
-    style UNI fill:#fffde7,color:#000
-    style FEI fill:#fffde7,color:#000
-    style SLK fill:#fffde7,color:#000
-    style CORE fill:#fffde7,color:#000
-    style STATE fill:#fffde7,color:#000
-    style TOOLS fill:#fffde7,color:#000
-    style SCHED fill:#fffde7,color:#000
+    style SHARED fill:#fef3c7,stroke:#b45309,color:#000
+    style UNI fill:#fef3c7,stroke:#b45309,color:#000
+    style FEI fill:#fef3c7,stroke:#b45309,color:#000
+    style SLK fill:#fef3c7,stroke:#b45309,color:#000
+    style CORE fill:#fde68a,stroke:#d97706,color:#000
+    style STATE fill:#fde68a,stroke:#d97706,color:#000
+    style TOOLS fill:#fde68a,stroke:#d97706,color:#000
+    style SCHED fill:#fde68a,stroke:#d97706,color:#000
 ```
 
 ### Plugin Entry Points
@@ -82,18 +82,18 @@ graph LR
     SP --> SDIR(Slack users.list API)
     SP --> SDM(Slack chat.postMessage)
 
-    style CTX fill:#fffde7,color:#000
-    style LP fill:#fffde7,color:#000
-    style SP fill:#fffde7,color:#000
-    style MSG fill:#fffde7,color:#000
-    style GW fill:#fffde7,color:#000
-    style AGENT fill:#fffde7,color:#000
-    style CORE fill:#fffde7,color:#000
-    style LAPI fill:#fffde7,color:#000
-    style LDIR fill:#fffde7,color:#000
-    style LDM fill:#fffde7,color:#000
-    style SDIR fill:#fffde7,color:#000
-    style SDM fill:#fffde7,color:#000
+    style CTX fill:#fde68a,stroke:#d97706,color:#000
+    style LP fill:#fef3c7,stroke:#b45309,color:#000
+    style SP fill:#fef3c7,stroke:#b45309,color:#000
+    style MSG fill:#fcd34d,stroke:#92400e,color:#000
+    style GW fill:#fcd34d,stroke:#92400e,color:#000
+    style AGENT fill:#fcd34d,stroke:#92400e,color:#000
+    style CORE fill:#fde68a,stroke:#d97706,color:#000
+    style LAPI fill:#fef3c7,stroke:#b45309,color:#000
+    style LDIR fill:#fef3c7,stroke:#b45309,color:#000
+    style LDM fill:#fef3c7,stroke:#b45309,color:#000
+    style SDIR fill:#fef3c7,stroke:#b45309,color:#000
+    style SDM fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Plugin Meeting Flow
@@ -113,17 +113,17 @@ graph TD
     I --> J(10. provider.sendTextDM sends invite to each attendee)
     J --> K(11. Return meetingId to LLM, LLM replies to user)
 
-    style D fill:#fffde7,color:#000
-    style G fill:#fffde7,color:#000
-    style H fill:#fffde7,color:#000
-    style I fill:#fffde7,color:#000
-    style A fill:#fffde7,color:#000
-    style B fill:#fffde7,color:#000
-    style C fill:#fffde7,color:#000
-    style E fill:#fffde7,color:#000
-    style F fill:#fffde7,color:#000
-    style J fill:#fffde7,color:#000
-    style K fill:#fffde7,color:#000
+    style D fill:#fde68a,stroke:#d97706,color:#000
+    style G fill:#fde68a,stroke:#d97706,color:#000
+    style H fill:#fde68a,stroke:#d97706,color:#000
+    style I fill:#fde68a,stroke:#d97706,color:#000
+    style A fill:#fcd34d,stroke:#92400e,color:#000
+    style B fill:#fcd34d,stroke:#92400e,color:#000
+    style C fill:#fcd34d,stroke:#92400e,color:#000
+    style E fill:#fef3c7,stroke:#b45309,color:#000
+    style F fill:#fef3c7,stroke:#b45309,color:#000
+    style J fill:#fef3c7,stroke:#b45309,color:#000
+    style K fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Plugin Attendee Response Flow
@@ -150,20 +150,20 @@ graph TD
     RESET --> DEBOUNCE
     DEBOUNCE -->|30s elapsed| FINAL(finaliseMeeting)
 
-    style MERGE fill:#fffde7,color:#000
-    style DEBOUNCE fill:#fffde7,color:#000
-    style FINAL fill:#fffde7,color:#000
-    style A fill:#fffde7,color:#000
-    style B fill:#fffde7,color:#000
-    style C fill:#fffde7,color:#000
-    style D fill:#fffde7,color:#000
-    style E fill:#fffde7,color:#000
-    style F fill:#fffde7,color:#000
-    style G fill:#fffde7,color:#000
-    style H fill:#fffde7,color:#000
-    style CHECK fill:#fffde7,color:#000
-    style WAIT fill:#fffde7,color:#000
-    style RESET fill:#fffde7,color:#000
+    style MERGE fill:#fde68a,stroke:#d97706,color:#000
+    style DEBOUNCE fill:#fcd34d,stroke:#92400e,color:#000
+    style FINAL fill:#fde68a,stroke:#d97706,color:#000
+    style A fill:#fef3c7,stroke:#b45309,color:#000
+    style B fill:#fef3c7,stroke:#b45309,color:#000
+    style C fill:#fcd34d,stroke:#92400e,color:#000
+    style D fill:#fde68a,stroke:#d97706,color:#000
+    style E fill:#fde68a,stroke:#d97706,color:#000
+    style F fill:#fde68a,stroke:#d97706,color:#000
+    style G fill:#fde68a,stroke:#d97706,color:#000
+    style H fill:#fef3c7,stroke:#b45309,color:#000
+    style CHECK fill:#fde68a,stroke:#d97706,color:#000
+    style WAIT fill:#fef3c7,stroke:#b45309,color:#000
+    style RESET fill:#fcd34d,stroke:#92400e,color:#000
 ```
 
 ### Plugin Finalization State Machine
@@ -202,14 +202,14 @@ graph TD
     STATUS -->|Yes| DM(DM initiator roll-call: X/Y responded)
     STATUS -->|No| NEXT(Next meeting)
 
-    style CLOSE fill:#fffde7,color:#000
-    style DM fill:#fffde7,color:#000
-    style TICK fill:#fffde7,color:#000
-    style GC fill:#fffde7,color:#000
-    style LOOP fill:#fffde7,color:#000
-    style EXP fill:#fffde7,color:#000
-    style STATUS fill:#fffde7,color:#000
-    style NEXT fill:#fffde7,color:#000
+    style CLOSE fill:#fde68a,stroke:#d97706,color:#000
+    style DM fill:#fcd34d,stroke:#92400e,color:#000
+    style TICK fill:#fef3c7,stroke:#b45309,color:#000
+    style GC fill:#fef3c7,stroke:#b45309,color:#000
+    style LOOP fill:#fde68a,stroke:#d97706,color:#000
+    style EXP fill:#fcd34d,stroke:#92400e,color:#000
+    style STATUS fill:#fde68a,stroke:#d97706,color:#000
+    style NEXT fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Plugin State Management
@@ -282,16 +282,16 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     IDX --> SKILL(SKILL.md - LLM instructions)
 
-    style ROUTER fill:#fffde7,color:#000
-    style STORE fill:#fffde7,color:#000
-    style DISK fill:#fffde7,color:#000
-    style LP fill:#fffde7,color:#000
-    style SP fill:#fffde7,color:#000
-    style IDX fill:#fffde7,color:#000
-    style CORE fill:#fffde7,color:#000
-    style MEM fill:#fffde7,color:#000
-    style SCHED fill:#fffde7,color:#000
-    style SKILL fill:#fffde7,color:#000
+    style ROUTER fill:#fde68a,stroke:#d97706,color:#000
+    style STORE fill:#fde68a,stroke:#d97706,color:#000
+    style DISK fill:#fef3c7,stroke:#b45309,color:#000
+    style LP fill:#fef3c7,stroke:#b45309,color:#000
+    style SP fill:#fef3c7,stroke:#b45309,color:#000
+    style IDX fill:#fcd34d,stroke:#92400e,color:#000
+    style CORE fill:#fde68a,stroke:#d97706,color:#000
+    style MEM fill:#fef3c7,stroke:#b45309,color:#000
+    style SCHED fill:#fef3c7,stroke:#b45309,color:#000
+    style SKILL fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### What Changed from Plugin
@@ -321,15 +321,15 @@ graph LR
     LP --> LAPI(Feishu API)
     SP --> SAPI(Slack API)
 
-    style CTX fill:#fffde7,color:#000
-    style LP fill:#fffde7,color:#000
-    style SP fill:#fffde7,color:#000
-    style MSG fill:#fffde7,color:#000
-    style GW fill:#fffde7,color:#000
-    style AGENT fill:#fffde7,color:#000
-    style CORE fill:#fffde7,color:#000
-    style LAPI fill:#fffde7,color:#000
-    style SAPI fill:#fffde7,color:#000
+    style CTX fill:#fde68a,stroke:#d97706,color:#000
+    style LP fill:#fef3c7,stroke:#b45309,color:#000
+    style SP fill:#fef3c7,stroke:#b45309,color:#000
+    style MSG fill:#fcd34d,stroke:#92400e,color:#000
+    style GW fill:#fcd34d,stroke:#92400e,color:#000
+    style AGENT fill:#fcd34d,stroke:#92400e,color:#000
+    style CORE fill:#fde68a,stroke:#d97706,color:#000
+    style LAPI fill:#fef3c7,stroke:#b45309,color:#000
+    style SAPI fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Skill Meeting Flow
@@ -354,21 +354,21 @@ graph TD
     M --> N(14. commitMeeting + store.save)
     N --> O(15. Calendar event created)
 
-style G fill:#fffde7,color:#000
-    style K fill:#fffde7,color:#000
-    style N fill:#fffde7,color:#000
-    style A fill:#fffde7,color:#000
-    style B fill:#fffde7,color:#000
-    style C fill:#fffde7,color:#000
-    style D fill:#fffde7,color:#000
-    style E fill:#fffde7,color:#000
-    style F fill:#fffde7,color:#000
-    style H fill:#fffde7,color:#000
-    style I fill:#fffde7,color:#000
-    style J fill:#fffde7,color:#000
-    style L fill:#fffde7,color:#000
-    style M fill:#fffde7,color:#000
-    style O fill:#fffde7,color:#000
+style G fill:#fde68a,stroke:#d97706,color:#000
+    style K fill:#fde68a,stroke:#d97706,color:#000
+    style N fill:#fde68a,stroke:#d97706,color:#000
+    style A fill:#fcd34d,stroke:#92400e,color:#000
+    style B fill:#fcd34d,stroke:#92400e,color:#000
+    style C fill:#fcd34d,stroke:#92400e,color:#000
+    style D fill:#fef3c7,stroke:#b45309,color:#000
+    style E fill:#fef3c7,stroke:#b45309,color:#000
+    style F fill:#fef3c7,stroke:#b45309,color:#000
+    style H fill:#fef3c7,stroke:#b45309,color:#000
+    style I fill:#fde68a,stroke:#d97706,color:#000
+    style J fill:#fcd34d,stroke:#92400e,color:#000
+    style L fill:#fde68a,stroke:#d97706,color:#000
+    style M fill:#fde68a,stroke:#d97706,color:#000
+    style O fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Skill State Management
@@ -387,11 +387,11 @@ graph LR
     RESTART(Gateway restart) --> HYDRATE(store.hydrate)
     HYDRATE -->|scan pending dir| MAP
 
-    style MAP fill:#fffde7,color:#000
-    style FS fill:#fffde7,color:#000
-    style HYDRATE fill:#fffde7,color:#000
-    style WRITE fill:#fffde7,color:#000
-    style RESTART fill:#fffde7,color:#000
+    style MAP fill:#fef3c7,stroke:#b45309,color:#000
+    style FS fill:#fef3c7,stroke:#b45309,color:#000
+    style HYDRATE fill:#fde68a,stroke:#d97706,color:#000
+    style WRITE fill:#fcd34d,stroke:#92400e,color:#000
+    style RESTART fill:#fcd34d,stroke:#92400e,color:#000
 ```
 
 ### Skill Finalization State Machine
@@ -433,14 +433,14 @@ graph TD
     STATUS -->|Yes| DM(DM roll-call + store.save)
     STATUS -->|No| NEXT(Next)
 
-    style CLOSE fill:#fffde7,color:#000
-    style DM fill:#fffde7,color:#000
-    style TICK fill:#fffde7,color:#000
-    style GC fill:#fffde7,color:#000
-    style LOOP fill:#fffde7,color:#000
-    style EXP fill:#fffde7,color:#000
-    style STATUS fill:#fffde7,color:#000
-    style NEXT fill:#fffde7,color:#000
+    style CLOSE fill:#fde68a,stroke:#d97706,color:#000
+    style DM fill:#fcd34d,stroke:#92400e,color:#000
+    style TICK fill:#fef3c7,stroke:#b45309,color:#000
+    style GC fill:#fef3c7,stroke:#b45309,color:#000
+    style LOOP fill:#fde68a,stroke:#d97706,color:#000
+    style EXP fill:#fcd34d,stroke:#92400e,color:#000
+    style STATUS fill:#fde68a,stroke:#d97706,color:#000
+    style NEXT fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ### Skill File Structure
@@ -555,20 +555,20 @@ graph LR
         S9(Two-step name resolution)
     end
 
-    style D1 fill:#fffde7,color:#000
-    style D2 fill:#fffde7,color:#000
-    style D3 fill:#fffde7,color:#000
-    style D4 fill:#fffde7,color:#000
-    style D5 fill:#fffde7,color:#000
-    style S1 fill:#fffde7,color:#000
-    style S2 fill:#fffde7,color:#000
-    style S3 fill:#fffde7,color:#000
-    style S4 fill:#fffde7,color:#000
-    style S5 fill:#fffde7,color:#000
-    style S6 fill:#fffde7,color:#000
-    style S7 fill:#fffde7,color:#000
-    style S8 fill:#fffde7,color:#000
-    style S9 fill:#fffde7,color:#000
+    style D1 fill:#fde68a,stroke:#d97706,color:#000
+    style D2 fill:#fde68a,stroke:#d97706,color:#000
+    style D3 fill:#fde68a,stroke:#d97706,color:#000
+    style D4 fill:#fde68a,stroke:#d97706,color:#000
+    style D5 fill:#fde68a,stroke:#d97706,color:#000
+    style S1 fill:#fef3c7,stroke:#b45309,color:#000
+    style S2 fill:#fef3c7,stroke:#b45309,color:#000
+    style S3 fill:#fef3c7,stroke:#b45309,color:#000
+    style S4 fill:#fef3c7,stroke:#b45309,color:#000
+    style S5 fill:#fef3c7,stroke:#b45309,color:#000
+    style S6 fill:#fef3c7,stroke:#b45309,color:#000
+    style S7 fill:#fef3c7,stroke:#b45309,color:#000
+    style S8 fill:#fef3c7,stroke:#b45309,color:#000
+    style S9 fill:#fef3c7,stroke:#b45309,color:#000
 ```
 
 ---
