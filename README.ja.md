@@ -156,6 +156,15 @@ stateDiagram-v2
     Committed --> [*]: 発起者にイベントリンクを DM
     Failed --> [*]: 発起者に失敗理由を DM
     Expired --> [*]: 発起者に自動キャンセルを DM
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin バックグラウンドティッカー
@@ -356,6 +365,15 @@ stateDiagram-v2
     Committed --> [*]: カレンダーイベント作成
     Failed --> [*]: クローズ + store.save
     Expired --> [*]: 自動キャンセル + store.save
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill バックグラウンドティッカー

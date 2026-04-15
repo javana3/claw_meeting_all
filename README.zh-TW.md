@@ -156,6 +156,15 @@ stateDiagram-v2
     已提交 --> [*]: 私訊發起人附帶事件連結
     失敗 --> [*]: 私訊發起人附帶失敗原因
     已過期 --> [*]: 私訊發起人已自動取消
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 外掛背景定時器
@@ -356,6 +365,15 @@ stateDiagram-v2
     已提交 --> [*]: 日曆事件已建立
     失敗 --> [*]: 已關閉 + store.save
     已過期 --> [*]: 已自動取消 + store.save
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版背景定時器

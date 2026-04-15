@@ -156,6 +156,15 @@ stateDiagram-v2
     已提交 --> [*]: 私信发起人附带事件链接
     失败 --> [*]: 私信发起人附带失败原因
     已过期 --> [*]: 私信发起人自动取消
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 插件后台定时器
@@ -356,6 +365,15 @@ stateDiagram-v2
     已提交 --> [*]: 日历事件已创建
     失败 --> [*]: 已关闭 + store.save
     已过期 --> [*]: 自动取消 + store.save
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 技能版后台定时器

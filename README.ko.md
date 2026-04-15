@@ -156,6 +156,15 @@ stateDiagram-v2
     Committed --> [*]: 주최자에게 이벤트 링크 DM 전송
     Failed --> [*]: 주최자에게 실패 사유 DM 전송
     Expired --> [*]: 주최자에게 자동 취소 DM 전송
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 플러그인 백그라운드 티커
@@ -356,6 +365,15 @@ stateDiagram-v2
     Committed --> [*]: 캘린더 이벤트 생성
     Failed --> [*]: 종료 + store.save
     Expired --> [*]: 자동 취소 + store.save
+
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### 스킬 백그라운드 티커
