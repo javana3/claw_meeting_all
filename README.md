@@ -46,14 +46,14 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     CORE --> STATE(In-Memory State Map)
 
-    style SHARED fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style UNI fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style FEI fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SLK fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style CORE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style STATE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style TOOLS fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style SCHED fill:#2563eb,stroke:#1d4ed8,color:#fff
+    style SHARED fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style UNI fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FEI fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SLK fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style TOOLS fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SCHED fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin Entry Points
@@ -82,18 +82,18 @@ graph LR
     SP --> SDIR(Slack users.list API)
     SP --> SDM(Slack chat.postMessage)
 
-    style CTX fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style LP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style MSG fill:#3b82f6,stroke:#2563eb,color:#fff
-    style GW fill:#3b82f6,stroke:#2563eb,color:#fff
-    style AGENT fill:#3b82f6,stroke:#2563eb,color:#fff
-    style CORE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style LAPI fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style LDIR fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style LDM fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SDIR fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SDM fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style MSG fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style GW fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style AGENT fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LAPI fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LDIR fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LDM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SDIR fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SDM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin Meeting Flow
@@ -113,17 +113,17 @@ graph TD
     I --> J(10. provider.sendTextDM sends invite to each attendee)
     J --> K(11. Return meetingId to LLM, LLM replies to user)
 
-    style D fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style G fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style H fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style I fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style A fill:#3b82f6,stroke:#2563eb,color:#fff
-    style B fill:#3b82f6,stroke:#2563eb,color:#fff
-    style C fill:#3b82f6,stroke:#2563eb,color:#fff
-    style E fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style F fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style J fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style K fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style D fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style G fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style H fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style I fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style A fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style B fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style C fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style E fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style F fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style J fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style K fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin Attendee Response Flow
@@ -150,20 +150,20 @@ graph TD
     RESET --> DEBOUNCE
     DEBOUNCE -->|30s elapsed| FINAL(finaliseMeeting)
 
-    style MERGE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style DEBOUNCE fill:#3b82f6,stroke:#2563eb,color:#fff
-    style FINAL fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style A fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style B fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style C fill:#3b82f6,stroke:#2563eb,color:#fff
-    style D fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style E fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style F fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style G fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style H fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style CHECK fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style WAIT fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style RESET fill:#3b82f6,stroke:#2563eb,color:#fff
+    style MERGE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DEBOUNCE fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style FINAL fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style A fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style B fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style C fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style E fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style F fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style G fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style H fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style CHECK fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style WAIT fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style RESET fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin Finalization State Machine
@@ -189,14 +189,14 @@ stateDiagram-v2
     Failed --> [*]: DM initiator with failure reason
     Expired --> [*]: DM initiator auto-cancelled
 
-    style [*] fill:#3b82f6,stroke:#2563eb,color:#fff
-    style Collecting fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style FastPath fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Scoring fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Confirming fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Committed fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style Failed fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style Expired fill:#2563eb,stroke:#1d4ed8,color:#fff
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin Background Ticker
@@ -211,14 +211,14 @@ graph TD
     STATUS -->|Yes| DM(DM initiator roll-call: X/Y responded)
     STATUS -->|No| NEXT(Next meeting)
 
-    style CLOSE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style DM fill:#3b82f6,stroke:#2563eb,color:#fff
-    style TICK fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style GC fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style LOOP fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style EXP fill:#3b82f6,stroke:#2563eb,color:#fff
-    style STATUS fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style NEXT fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style TICK fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style GC fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LOOP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style EXP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style STATUS fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style NEXT fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Plugin State Management
@@ -291,16 +291,16 @@ graph TD
     CORE --> SCHED(scheduler.ts)
     IDX --> SKILL(SKILL.md - LLM instructions)
 
-    style ROUTER fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style STORE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style DISK fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style LP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style IDX fill:#3b82f6,stroke:#2563eb,color:#fff
-    style CORE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style MEM fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SCHED fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SKILL fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style ROUTER fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style STORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DISK fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style IDX fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style MEM fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SCHED fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SKILL fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### What Changed from Plugin
@@ -330,15 +330,15 @@ graph LR
     LP --> LAPI(Feishu API)
     SP --> SAPI(Slack API)
 
-    style CTX fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style LP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style MSG fill:#3b82f6,stroke:#2563eb,color:#fff
-    style GW fill:#3b82f6,stroke:#2563eb,color:#fff
-    style AGENT fill:#3b82f6,stroke:#2563eb,color:#fff
-    style CORE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style LAPI fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style SAPI fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style CTX fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style MSG fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style GW fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style AGENT fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style CORE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LAPI fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style SAPI fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill Meeting Flow
@@ -363,21 +363,21 @@ graph TD
     M --> N(14. commitMeeting + store.save)
     N --> O(15. Calendar event created)
 
-style G fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style K fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style N fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style A fill:#3b82f6,stroke:#2563eb,color:#fff
-    style B fill:#3b82f6,stroke:#2563eb,color:#fff
-    style C fill:#3b82f6,stroke:#2563eb,color:#fff
-    style D fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style E fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style F fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style H fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style I fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style J fill:#3b82f6,stroke:#2563eb,color:#fff
-    style L fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style M fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style O fill:#1e3a5f,stroke:#1e40af,color:#fff
+style G fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style K fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style N fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style A fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style B fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style C fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style D fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style E fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style F fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style H fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style I fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style J fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style L fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style M fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style O fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill State Management
@@ -396,11 +396,11 @@ graph LR
     RESTART(Gateway restart) --> HYDRATE(store.hydrate)
     HYDRATE -->|scan pending dir| MAP
 
-    style MAP fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style FS fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style HYDRATE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style WRITE fill:#3b82f6,stroke:#2563eb,color:#fff
-    style RESTART fill:#3b82f6,stroke:#2563eb,color:#fff
+    style MAP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FS fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style HYDRATE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style WRITE fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style RESTART fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill Finalization State Machine
@@ -427,14 +427,14 @@ stateDiagram-v2
     Failed --> [*]: Closed + store.save
     Expired --> [*]: Auto-cancelled + store.save
 
-    style [*] fill:#3b82f6,stroke:#2563eb,color:#fff
-    style Collecting fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style FastPath fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Scoring fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Confirming fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style Committed fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style Failed fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style Expired fill:#2563eb,stroke:#1d4ed8,color:#fff
+    style [*] fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style Collecting fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style FastPath fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Scoring fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Confirming fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Committed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Failed fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style Expired fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill Background Ticker
@@ -451,14 +451,14 @@ graph TD
     STATUS -->|Yes| DM(DM roll-call + store.save)
     STATUS -->|No| NEXT(Next)
 
-    style CLOSE fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style DM fill:#3b82f6,stroke:#2563eb,color:#fff
-    style TICK fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style GC fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style LOOP fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style EXP fill:#3b82f6,stroke:#2563eb,color:#fff
-    style STATUS fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style NEXT fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style CLOSE fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style DM fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style TICK fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style GC fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style LOOP fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style EXP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    style STATUS fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style NEXT fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ### Skill File Structure
@@ -573,20 +573,20 @@ graph LR
         S9(Two-step name resolution)
     end
 
-    style D1 fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style D2 fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style D3 fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style D4 fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style D5 fill:#2563eb,stroke:#1d4ed8,color:#fff
-    style S1 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S2 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S3 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S4 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S5 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S6 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S7 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S8 fill:#1e3a5f,stroke:#1e40af,color:#fff
-    style S9 fill:#1e3a5f,stroke:#1e40af,color:#fff
+    style D1 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style D2 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style D3 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style D4 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style D5 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S1 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S2 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S3 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S4 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S5 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S6 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S7 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S8 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style S9 fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
 ```
 
 ---
